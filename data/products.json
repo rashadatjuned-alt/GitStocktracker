@@ -1,1 +1,16 @@
-{"products":[]}
+{
+  "products": [
+    {
+      "id": "1777546398193",
+      "url": "https://www.limelight.pk/products/u4806su-3pc-633",
+      "name": "u4806su 3pc 633",
+      "status": "out",
+      "platform": null,
+      "lastChecked": null,
+      "lastStatus": null,
+      "lastDetail": null,
+      "addedAt": "2026-04-30T10:53:18.195Z",
+      "alertsSent": 0
+    }
+  ]
+}
