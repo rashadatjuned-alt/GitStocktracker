@@ -11,18 +11,6 @@
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-04-30T11:09:30.469Z",
       "alertsSent": 0
-    },
-    {
-      "id": "1777547402450",
-      "url": "https://zellbury.com/products/shirt-dupatta-wus26x20403",
-      "name": "shirt dupatta wus26x20403",
-      "status": "in",
-      "platform": "shopify",
-      "lastChecked": "2026-04-30T11:11:20.052Z",
-      "lastStatus": "out",
-      "lastDetail": "In stock (script data)",
-      "addedAt": "2026-04-30T11:10:02.450Z",
-      "alertsSent": 1
     }
   ]
 }
