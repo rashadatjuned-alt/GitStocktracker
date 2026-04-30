@@ -6,7 +6,7 @@
       "name": "Zellbury",
       "status": "out",
       "platform": "shopify",
-      "lastChecked": "2026-04-30T11:19:14.277Z",
+      "lastChecked": "2026-04-30T11:21:17.482Z",
       "lastStatus": "out",
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-04-30T11:09:30.469Z",
@@ -18,7 +18,7 @@
       "name": "Iznik",
       "status": "out",
       "platform": "shopify",
-      "lastChecked": "2026-04-30T11:19:15.078Z",
+      "lastChecked": "2026-04-30T11:21:18.142Z",
       "lastStatus": "out",
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-04-30T11:16:25.501Z",
@@ -28,13 +28,13 @@
       "id": "1777547979019",
       "url": "https://global.iznikfashions.com/collections/unstitched/products/ue-626-embroidered-lawn",
       "name": "ue 626 embroidered lawn",
-      "status": "out",
-      "platform": null,
-      "lastChecked": null,
-      "lastStatus": null,
-      "lastDetail": null,
+      "status": "in",
+      "platform": "shopify",
+      "lastChecked": "2026-04-30T11:21:18.709Z",
+      "lastStatus": "out",
+      "lastDetail": "In stock (script data)",
       "addedAt": "2026-04-30T11:19:39.019Z",
-      "alertsSent": 0
+      "alertsSent": 1
     }
   ]
 }
