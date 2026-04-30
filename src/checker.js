@@ -14,10 +14,19 @@ const HEADERS = {
   'Cache-Control': 'max-age=0',
 };
 
+// ─── Extract variant ID from URL if present ───────────────────────────────────
+function getVariantId(url) {
+  try {
+    const u = new URL(url);
+    return u.searchParams.get('variant') || null;
+  } catch { return null; }
+}
+
 // ─── Shopify JSON endpoint ────────────────────────────────────────────────────
 async function checkShopifyJson(url) {
-  const base    = url.split('?')[0].replace(/\/$/, '');
-  const jsonUrl = base.endsWith('.json') ? base : base + '.json';
+  const variantId = getVariantId(url);
+  const base      = url.split('?')[0].replace(/\/$/, '');
+  const jsonUrl   = base.endsWith('.json') ? base : base + '.json';
 
   const res = await fetch(jsonUrl, { headers: HEADERS });
   if (!res.ok) return null;
@@ -28,30 +37,43 @@ async function checkShopifyJson(url) {
 
   const variants = product.variants || [];
 
-  // Check if `available` field exists in ANY variant
+  // Check if `available` field exists
   const hasAvailableField = variants.some(v => typeof v.available !== 'undefined');
-
-  if (hasAvailableField) {
-    // Reliable — use available field directly
-    const anyAvailable = variants.some(v => v.available === true);
-    const totalQty = variants.reduce((s, v) => s + Math.max(0, v.inventory_quantity || 0), 0);
-    return {
-      status: anyAvailable ? 'in' : 'out',
-      title: product.title,
-      detail: anyAvailable
-        ? `In stock (${totalQty > 0 ? totalQty + ' units' : 'available'})`
-        : `Out of stock — all ${variants.length} variant(s) unavailable`,
-      platform: 'shopify'
-    };
+  if (!hasAvailableField) {
+    console.log(`  [Checker] JSON missing 'available' field — falling back to HTML`);
+    return null;
   }
 
-  // `available` field missing — store hides it (e.g. Limelight)
-  // Fall through to HTML parsing
-  console.log(`  [Checker] JSON missing 'available' field — falling back to HTML`);
-  return null;
+  // If a specific variant is requested, check only that one
+  if (variantId) {
+    const variant = variants.find(v => String(v.id) === String(variantId));
+    if (variant) {
+      return {
+        status: variant.available ? 'in' : 'out',
+        title:  `${product.title} — ${variant.title}`,
+        detail: variant.available
+          ? `Variant "${variant.title}" is in stock`
+          : `Variant "${variant.title}" is out of stock`,
+        platform: 'shopify'
+      };
+    }
+  }
+
+  // No variant specified — check overall product
+  const anyAvailable = variants.some(v => v.available === true);
+  const totalQty     = variants.reduce((s, v) => s + Math.max(0, v.inventory_quantity || 0), 0);
+
+  return {
+    status: anyAvailable ? 'in' : 'out',
+    title:  product.title,
+    detail: anyAvailable
+      ? `In stock (${totalQty > 0 ? totalQty + ' units' : 'available'})`
+      : `Out of stock — all ${variants.length} variant(s) unavailable`,
+    platform: 'shopify'
+  };
 }
 
-// ─── HTML fetch + parse ───────────────────────────────────────────────────────
+// ─── HTML fetch ───────────────────────────────────────────────────────────────
 async function fetchHtml(url) {
   const res = await fetch(url, { headers: { ...HEADERS, Referer: new URL(url).origin } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -60,20 +82,38 @@ async function fetchHtml(url) {
 
 // ─── Shopify HTML parsing ─────────────────────────────────────────────────────
 function checkShopifyHtml($, url) {
-  // Method 1: Script tag with "available" boolean
+  const variantId = getVariantId(url);
+
+  // Method 1: Find variant-specific availability in script tags
   let scriptResult = null;
+
   $('script').each((_, el) => {
     const text = $(el).html() || '';
 
-    // Look for "available": true/false
-    const availMatch = text.match(/"available"\s*:\s*(true|false)/i);
-    if (availMatch) {
-      scriptResult = availMatch[1].toLowerCase() === 'true' ? 'in' : 'out';
-      return false;
+    // If tracking a specific variant, find that variant's data
+    if (variantId) {
+      // Look for variant object containing our ID and available field
+      // Pattern: {"id":12345,"available":true/false,...}
+      const variantPattern = new RegExp(
+        `"id"\\s*:\\s*${variantId}[^}]*?"available"\\s*:\\s*(true|false)`, 'i'
+      );
+      const altPattern = new RegExp(
+        `"available"\\s*:\\s*(true|false)[^}]*?"id"\\s*:\\s*${variantId}`, 'i'
+      );
+
+      const m1 = text.match(variantPattern);
+      const m2 = text.match(altPattern);
+
+      if (m1) { scriptResult = m1[1].toLowerCase() === 'true' ? 'in' : 'out'; return false; }
+      if (m2) { scriptResult = m2[1].toLowerCase() === 'true' ? 'in' : 'out'; return false; }
+    } else {
+      // No variant — look for first "available" flag in script
+      const m = text.match(/"available"\s*:\s*(true|false)/i);
+      if (m) { scriptResult = m[1].toLowerCase() === 'true' ? 'in' : 'out'; return false; }
     }
   });
 
-  if (scriptResult) {
+  if (scriptResult !== null) {
     return {
       status: scriptResult,
       detail: scriptResult === 'in' ? 'In stock (script data)' : 'Out of stock (script data)',
@@ -81,37 +121,33 @@ function checkShopifyHtml($, url) {
     };
   }
 
-  // Method 2: Look for soldout / add-to-cart form action
-  // Shopify uses form action="/cart/add" when in stock
+  // Method 2: Cart form button
   const cartForm = $('form[action="/cart/add"], form[action*="cart/add"]');
   if (cartForm.length > 0) {
-    const submitBtn = cartForm.find('button[type="submit"], input[type="submit"], button[name="add"]');
-    if (submitBtn.length > 0) {
-      const isDisabled = submitBtn.prop('disabled') ||
-        submitBtn.attr('disabled') !== undefined ||
-        submitBtn.hasClass('disabled') ||
-        submitBtn.hasClass('sold-out') ||
-        submitBtn.hasClass('soldout');
+    const btn = cartForm.find('button[type="submit"], button[name="add"]');
+    if (btn.length > 0) {
+      const disabled = btn.prop('disabled') ||
+        btn.attr('disabled') !== undefined ||
+        btn.hasClass('disabled') ||
+        btn.hasClass('sold-out') ||
+        btn.hasClass('soldout');
 
-      if (!isDisabled) {
-        // Check button text for sold out
-        const btnText = submitBtn.text().trim().toLowerCase();
-        if (btnText.includes('sold out') || btnText.includes('out of stock') || btnText.includes('unavailable')) {
-          return { status: 'out', detail: `Button says: "${submitBtn.text().trim()}"`, platform: 'shopify' };
+      if (!disabled) {
+        const t = btn.text().trim().toLowerCase();
+        if (t.includes('sold out') || t.includes('out of stock') || t.includes('unavailable')) {
+          return { status: 'out', detail: `Button says: "${btn.text().trim()}"`, platform: 'shopify' };
         }
-        return { status: 'in', detail: `Add to cart available: "${submitBtn.text().trim()}"`, platform: 'shopify' };
-      } else {
-        return { status: 'out', detail: 'Add to cart button disabled', platform: 'shopify' };
+        return { status: 'in', detail: `Add to cart: "${btn.text().trim()}"`, platform: 'shopify' };
       }
+      return { status: 'out', detail: 'Add to cart button disabled', platform: 'shopify' };
     }
   }
 
-  // Method 3: Look for sold-out CSS classes on product wrapper
-  if ($('.sold-out, .soldout, .product--sold-out, [class*="sold-out"]').length > 0) {
-    return { status: 'out', detail: 'Sold-out CSS class detected', platform: 'shopify' };
+  // Method 3: Sold-out CSS class
+  if ($('.sold-out, .soldout, .product--sold-out').length > 0) {
+    return { status: 'out', detail: 'Sold-out class detected', platform: 'shopify' };
   }
 
-  // Method 4: Generic keyword scan
   return checkKeywords($, 'shopify');
 }
 
@@ -121,15 +157,13 @@ function checkKeywords($, platform = 'generic') {
   const body = $('body').text().replace(/\s+/g, ' ').toLowerCase();
 
   const outSignals = [
-    'sold out', 'out of stock', 'currently unavailable',
-    'not available', 'no longer available', 'out-of-stock',
-    'notify me when available', 'email when available',
+    'sold out', 'out of stock', 'currently unavailable', 'not available',
+    'no longer available', 'out-of-stock', 'notify me when available',
     'temporarily unavailable',
   ];
   const inSignals = [
     'add to cart', 'add to bag', 'add to basket',
-    'buy now', 'in stock', 'order now',
-    'add to trolley',
+    'buy now', 'in stock', 'order now', 'add to trolley',
   ];
 
   for (const s of outSignals) {
@@ -173,7 +207,7 @@ async function checkStock(product) {
   try {
     const isShopify = product.platform === 'shopify' || url.includes('/products/');
 
-    // 1. Try Shopify JSON (fast, reliable — but some stores hide availability)
+    // 1. Try Shopify JSON (variant-aware)
     if (isShopify) {
       try {
         const jsonResult = await checkShopifyJson(url);
