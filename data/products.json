@@ -1,1 +1,16 @@
-{"products":[]}
+{
+  "products": [
+    {
+      "id": "1777543950057",
+      "url": "https://zellbury.com/products/shirt-dupatta-wus26x20521?_pos=1&_sid=5fb2c7db4&_ss=r",
+      "name": "Zellbury",
+      "status": "out",
+      "platform": null,
+      "lastChecked": null,
+      "lastStatus": null,
+      "lastDetail": null,
+      "addedAt": "2026-04-30T10:12:30.057Z",
+      "alertsSent": 0
+    }
+  ]
+}
