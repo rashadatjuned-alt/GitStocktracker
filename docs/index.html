@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d0d;
+      --bg2:      #161616;
+      --bg3:      #1e1e1e;
+      --bg4:      #262626;
+      --border:   #2a2a2a;
+      --border2:  #333;
+      --text:     #e8e8e8;
+      --muted:    #777;
+      --muted2:   #555;
+      --green:    #4ade80;
+      --green-bg: #0a2016;
+      --green-bd: #1a4a2e;
+      --red:      #f87171;
+      --red-bg:   #200a0a;
+      --red-bd:   #4a1a1a;
+      --yellow:   #fbbf24;
+      --yellow-bg:#1e1500;
+      --blue:     #60a5fa;
+      --radius:   12px;
+      --radius-sm:8px;
+      --font:     -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── Setup / Login ───────────────────────────────────────────────────── */
+    #setup-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .setup-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .setup-card .logo { font-size: 32px; margin-bottom: 16px; }
+    .setup-card h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .setup-card .sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .field input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      height: 42px;
+      padding: 0 14px;
+      outline: none;
+      transition: border-color .15s;
+      font-family: var(--font);
+    }
+    .field input:focus { border-color: #555; }
+    .field input::placeholder { color: var(--muted2); }
+
+    .field-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+    .field-hint a { color: var(--blue); text-decoration: none; }
+
+    .setup-err { color: var(--red); font-size: 13px; margin-bottom: 12px; display: none; }
+
+    /* ── App ─────────────────────────────────────────────────────────────── */
+    #app { display: none; }
+
+    .topbar {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-left h1 { font-size: 16px; font-weight: 600; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .repo-tag { font-size: 12px; color: var(--muted); background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; }
+
+    .main { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+
+    /* ── Stats ───────────────────────────────────────────────────────────── */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 28px; }
+    .stat {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+    .stat-val { font-size: 30px; font-weight: 600; line-height: 1; margin-bottom: 5px; }
+    .stat-lbl { font-size: 12px; color: var(--muted); }
+
+    /* ── Add product ─────────────────────────────────────────────────────── */
+    .add-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 24px;
+    }
+    .add-card h2 { font-size: 13px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px; }
+
+    .add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .add-row input {
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 14px;
+      height: 40px;
+      padding: 0 14px;
+      outline: none;
+      transition: border-color .15s;
+      font-family: var(--font);
+    }
+    .add-row input:focus { border-color: #555; }
+    .add-row input::placeholder { color: var(--muted2); }
+    .inp-url  { flex: 1; min-width: 240px; }
+    .inp-name { width: 180px; }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────── */
+    button {
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 500;
+      height: 40px;
+      padding: 0 18px;
+      transition: opacity .15s, background .15s;
+      white-space: nowrap;
+    }
+    button:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-primary   { background: #e8e8e8; color: #111; }
+    .btn-primary:hover:not(:disabled)   { background: #fff; }
+    .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+    .btn-secondary:hover:not(:disabled) { background: var(--bg4); }
+    .btn-sm  { font-size: 12px; height: 32px; padding: 0 12px; }
+    .btn-del { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bd); }
+    .btn-del:hover:not(:disabled) { background: #2d0a0a; }
+
+    /* ── Toolbar ─────────────────────────────────────────────────────────── */
+    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+    .toolbar-left { font-size: 14px; font-weight: 500; color: var(--text); }
+    .toolbar-right { display: flex; gap: 8px; }
+
+    /* ── Product list ────────────────────────────────────────────────────── */
+    #items { display: flex; flex-direction: column; gap: 10px; }
+
+    .empty {
+      text-align: center;
+      padding: 64px 20px;
+      color: var(--muted);
+      font-size: 14px;
+      border: 1px dashed var(--border2);
+      border-radius: var(--radius);
+    }
+    .empty-icon { font-size: 36px; display: block; margin-bottom: 14px; }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: var(--border2); }
+
+    .card-top { display: flex; align-items: flex-start; gap: 14px; }
+    .card-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+    .card-info { flex: 1; min-width: 0; }
+    .card-name { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-url  { font-size: 12px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-url a { color: inherit; text-decoration: none; }
+    .card-url a:hover { color: var(--blue); }
+    .card-badge { flex-shrink: 0; }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 4px 11px; border-radius: 999px; }
+    .badge-out  { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd); }
+    .badge-in   { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+    .badge-pend { background: var(--bg3); color: var(--muted); border: 1px solid var(--border2); }
+    .badge-err  { background: var(--yellow-bg); color: var(--yellow); border: 1px solid #4a3500; }
+
+    .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .dot-out { background: var(--red); }
+    .dot-in  { background: var(--green); box-shadow: 0 0 5px var(--green); }
+    .dot-err { background: var(--yellow); }
+
+    .card-meta {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .card-meta-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .meta-text { font-size: 12px; color: var(--muted); }
+    .meta-text b { color: #999; }
+    .platform-pill { font-size: 11px; color: var(--muted); background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 1px 7px; }
+
+    /* ── Last run info ───────────────────────────────────────────────────── */
+    .last-run { text-align: center; padding: 20px; color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .last-run a { color: var(--blue); text-decoration: none; }
+
+    /* ── Toast ───────────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 10px; padding: 13px 18px;
+      font-size: 14px; max-width: 300px;
+      transform: translateY(80px); opacity: 0;
+      transition: all .3s; z-index: 999;
+      pointer-events: none;
+    }
+    #toast.show    { transform: translateY(0); opacity: 1; }
+    #toast.success { border-color: var(--green-bd); color: var(--green); }
+    #toast.error   { border-color: var(--red-bd);   color: var(--red);   }
+
+    .spinner {
+      display: inline-block; width: 11px; height: 11px;
+      border: 1.5px solid currentColor; border-top-color: transparent;
+      border-radius: 50%; animation: spin .65s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Loading overlay ─────────────────────────────────────────────────── */
+    #loading {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 14px; z-index: 100;
+    }
+    #loading .spinner { width: 24px; height: 24px; border-width: 2px; color: var(--muted); }
+    #loading p { color: var(--muted); font-size: 14px; }
+    #loading.hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading">
+  <span class="spinner"></span>
+  <p>Loading...</p>
+</div>
+
+<!-- Setup / Login -->
+<div id="setup-screen" style="display:none;">
+  <div class="setup-card">
+    <div class="logo">📦</div>
+    <h1>Stock Tracker</h1>
+    <p class="sub">Connect your GitHub repo to get started</p>
+
+    <div class="field">
+      <label>GitHub Username</label>
+      <input type="text" id="s-owner" placeholder="your-username" />
+    </div>
+    <div class="field">
+      <label>Repository Name</label>
+      <input type="text" id="s-repo" placeholder="stock-tracker" />
+    </div>
+    <div class="field">
+      <label>GitHub Personal Access Token</label>
+      <input type="password" id="s-token" placeholder="ghp_xxxxxxxxxxxx" />
+      <p class="field-hint">
+        <a href="https://github.com/settings/tokens/new?scopes=repo&description=Stock+Tracker" target="_blank">Create token here</a>
+        — needs <b>repo</b> scope only
+      </p>
+    </div>
+
+    <p class="setup-err" id="setup-err">Could not connect — check your username, repo name, and token.</p>
+    <button class="btn-primary" style="width:100%;height:44px;font-size:15px;" onclick="connect()">Connect</button>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="live-dot"></span>
+      <h1>Stock Tracker</h1>
+    </div>
+    <div class="topbar-right">
+      <span class="repo-tag" id="repo-tag"></span>
+      <button class="btn-secondary btn-sm" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-val" id="s-total">—</div>
+        <div class="stat-lbl">Tracking</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" style="color:var(--red)"   id="s-out">—</div>
+        <div class="stat-lbl">Out of stock</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" style="color:var(--green)" id="s-in">—</div>
+        <div class="stat-lbl">Back in stock</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" style="color:var(--yellow)" id="s-alerts">—</div>
+        <div class="stat-lbl">Alerts sent</div>
+      </div>
+    </div>
+
+    <div class="add-card">
+      <h2>Track a product</h2>
+      <div class="add-row">
+        <input class="inp-name" type="text" id="i-name" placeholder="Name (optional)" />
+        <input class="inp-url"  type="url"  id="i-url"  placeholder="https://store.com/products/item" />
+        <button class="btn-primary" id="btn-add" onclick="addProduct()">+ Track</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-left" id="items-label">Tracked products</div>
+      <div class="toolbar-right">
+        <button class="btn-secondary btn-sm" id="btn-refresh" onclick="loadProducts()">↻ Refresh</button>
+      </div>
+    </div>
+
+    <div id="items"></div>
+
+    <div class="last-run" id="last-run"></div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Config stored in localStorage ──────────────────────────────────────────
+let CFG = {};
+const LS_KEY = 'st-cfg-v1';
+
+function loadCfg() {
+  try { CFG = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { CFG = {}; }
+}
+function saveCfg() { localStorage.setItem(LS_KEY, JSON.stringify(CFG)); }
+
+// ── GitHub API ──────────────────────────────────────────────────────────────
+const GH = 'https://api.github.com';
+
+async function ghFetch(path, opts = {}) {
+  const r = await fetch(`${GH}${path}`, {
+    ...opts,
+    headers: {
+      'Authorization': `Bearer ${CFG.token}`,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(opts.headers || {})
+    }
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    throw new Error(err.message || `GitHub API error ${r.status}`);
+  }
+  return r.status === 204 ? null : r.json();
+}
+
+// Read products.json from repo
+async function getProductsFile() {
+  const data = await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/contents/data/products.json`);
+  const content = JSON.parse(atob(data.content.replace(/\n/g, '')));
+  return { content, sha: data.sha };
+}
+
+// Write products.json back to repo
+async function saveProductsFile(content, sha) {
+  const body = JSON.stringify(content, null, 2);
+  await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/contents/data/products.json`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: 'chore: update products via dashboard [skip ci]',
+      content: btoa(unescape(encodeURIComponent(body))),
+      sha
+    })
+  });
+}
+
+// ── Connect / Auth ──────────────────────────────────────────────────────────
+async function connect() {
+  const owner = document.getElementById('s-owner').value.trim();
+  const repo  = document.getElementById('s-repo').value.trim();
+  const token = document.getElementById('s-token').value.trim();
+
+  if (!owner || !repo || !token) {
+    showSetupErr('Please fill in all fields.');
+    return;
+  }
+
+  const btn = document.querySelector('#setup-screen button');
+  btn.disabled = true; btn.textContent = 'Connecting…';
+
+  try {
+    // Test the connection
+    CFG = { owner, repo, token };
+    await ghFetch(`/repos/${owner}/${repo}/contents/data/products.json`);
+    saveCfg();
+    showApp();
+  } catch (e) {
+    showSetupErr('Could not connect — check your username, repo name, and token.');
+    CFG = {};
+  } finally {
+    btn.disabled = false; btn.textContent = 'Connect';
+  }
+}
+
+function showSetupErr(msg) {
+  const el = document.getElementById('setup-err');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function signOut() {
+  localStorage.removeItem(LS_KEY);
+  CFG = {};
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+
+// ── App ─────────────────────────────────────────────────────────────────────
+function showApp() {
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('repo-tag').textContent = `${CFG.owner}/${CFG.repo}`;
+  loadProducts();
+  // Auto refresh every 3 minutes
+  setInterval(loadProducts, 3 * 60 * 1000);
+}
+
+// ── Load products ────────────────────────────────────────────────────────────
+let currentSha = null;
+let products = [];
+
+async function loadProducts() {
+  const btn = document.getElementById('btn-refresh');
+  btn.disabled = true; btn.textContent = '↻ Loading…';
+
+  try {
+    const { content, sha } = await getProductsFile();
+    currentSha = sha;
+    products = content.products || [];
+    render();
+    loadLastRun();
+  } catch (e) {
+    toast('Failed to load: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '↻ Refresh';
+  }
+}
+
+async function loadLastRun() {
+  try {
+    const runs = await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/actions/workflows/check-stock.yml/runs?per_page=1`);
+    const run = runs.workflow_runs?.[0];
+    if (!run) return;
+
+    const when = new Date(run.updated_at).toLocaleString();
+    const status = run.conclusion === 'success' ? '✅' : run.conclusion === 'failure' ? '❌' : '⏳';
+    const url = run.html_url;
+
+    document.getElementById('last-run').innerHTML =
+      `Last auto-check: ${status} ${when} &nbsp;·&nbsp; <a href="${url}" target="_blank">View logs →</a>`;
+  } catch {}
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function render() {
+  const total  = products.length;
+  const out    = products.filter(p => p.status === 'out').length;
+  const inStock= products.filter(p => p.status === 'in').length;
+  const alerts = products.reduce((s, p) => s + (p.alertsSent || 0), 0);
+
+  document.getElementById('s-total').textContent  = total;
+  document.getElementById('s-out').textContent    = out;
+  document.getElementById('s-in').textContent     = inStock;
+  document.getElementById('s-alerts').textContent = alerts;
+  document.getElementById('items-label').textContent = `Tracked products (${total})`;
+
+  const el = document.getElementById('items');
+
+  if (total === 0) {
+    el.innerHTML = `
+      <div class="empty">
+        <span class="empty-icon">📭</span>
+        No products tracked yet.<br>Paste a product URL above to start.
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = products.map(p => {
+    const icon    = p.status === 'in' ? '✅' : p.status === 'out' ? '🔴' : '⏳';
+    const checked = p.lastChecked
+      ? new Date(p.lastChecked).toLocaleString()
+      : 'Not checked yet — runs on next hourly check';
+
+    return `
+    <div class="card">
+      <div class="card-top">
+        <div class="card-icon">${icon}</div>
+        <div class="card-info">
+          <div class="card-name">${esc(p.name)}</div>
+          <div class="card-url"><a href="${esc(p.url)}" target="_blank">${esc(p.url)}</a></div>
+        </div>
+        <div class="card-badge">${badge(p)}</div>
+      </div>
+      <div class="card-meta">
+        <div class="card-meta-left">
+          ${p.platform ? `<span class="platform-pill">${esc(p.platform)}</span>` : ''}
+          <span class="meta-text">Last checked: <b>${checked}</b></span>
+          ${p.lastDetail ? `<span class="meta-text">· ${esc(p.lastDetail)}</span>` : ''}
+        </div>
+        <button class="btn-secondary btn-sm btn-del" onclick="removeProduct('${p.id}')">Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function badge(p) {
+  if (p.status === 'in')  return `<span class="badge badge-in"><span class="dot dot-in"></span> In stock</span>`;
+  if (p.status === 'out') return `<span class="badge badge-out"><span class="dot dot-out"></span> Out of stock</span>`;
+  if (p.status === 'error') return `<span class="badge badge-err">⚠ Error</span>`;
+  return `<span class="badge badge-pend">⏳ Pending</span>`;
+}
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Add product ──────────────────────────────────────────────────────────────
+async function addProduct() {
+  const url  = document.getElementById('i-url').value.trim();
+  const name = document.getElementById('i-name').value.trim();
+  if (!url) { toast('Please enter a product URL', 'error'); return; }
+
+  try { new URL(url); } catch {
+    toast('Please enter a valid URL (include https://)', 'error'); return;
+  }
+
+  if (products.find(p => p.url === url)) {
+    toast('Already tracking this URL', 'error'); return;
+  }
+
+  const btn = document.getElementById('btn-add');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const product = {
+    id: Date.now().toString(),
+    url,
+    name: name || extractName(url),
+    status: 'out',
+    platform: null,
+    lastChecked: null,
+    lastStatus: null,
+    lastDetail: null,
+    addedAt: new Date().toISOString(),
+    alertsSent: 0
+  };
+
+  try {
+    const updated = { products: [...products, product] };
+    await saveProductsFile(updated, currentSha);
+    document.getElementById('i-url').value  = '';
+    document.getElementById('i-name').value = '';
+    toast('Added! Will check on next hourly run ✅', 'success');
+    await loadProducts();
+  } catch (e) {
+    toast('Failed to save: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '+ Track';
+  }
+}
+
+// ── Remove product ───────────────────────────────────────────────────────────
+async function removeProduct(id) {
+  if (!confirm('Stop tracking this product?')) return;
+
+  try {
+    const updated = { products: products.filter(p => p.id !== id) };
+    await saveProductsFile(updated, currentSha);
+    toast('Removed', 'success');
+    await loadProducts();
+  } catch (e) {
+    toast('Failed: ' + e.message, 'error');
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function extractName(url) {
+  try {
+    const parts = new URL(url).pathname.split('/').filter(Boolean);
+    return (parts[parts.length - 1] || '').replace(/[-_]/g, ' ').replace(/\.html?$/, '').trim() || 'Product';
+  } catch { return 'Product'; }
+}
+
+let toastTimer;
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 4000);
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+loadCfg();
+
+if (CFG.owner && CFG.repo && CFG.token) {
+  showApp();
+} else {
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+
+// Enter key shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement.id === 'i-url') addProduct();
+  if (e.key === 'Enter' && document.activeElement.id === 's-token') connect();
+});
+</script>
+</body>
+</html>
