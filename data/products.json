@@ -23,6 +23,18 @@
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-04-30T11:16:25.501Z",
       "alertsSent": 0
+    },
+    {
+      "id": "1777635525924",
+      "url": "https://www.limelight.pk/products/a1160st-xsl-489",
+      "name": "a1160st xsl 489",
+      "status": "out",
+      "platform": null,
+      "lastChecked": null,
+      "lastStatus": null,
+      "lastDetail": null,
+      "addedAt": "2026-05-01T11:38:45.924Z",
+      "alertsSent": 0
     }
   ]
 }
