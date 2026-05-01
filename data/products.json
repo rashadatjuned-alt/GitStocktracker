@@ -47,6 +47,18 @@
       "lastDetail": "In stock (script data)",
       "addedAt": "2026-05-01T16:05:53.477Z",
       "alertsSent": 1
+    },
+    {
+      "id": "1777652484232",
+      "url": "https://www.limelight.pk/products/a5695st-xsl-227",
+      "name": "a5695st xsl 227",
+      "status": "out",
+      "platform": null,
+      "lastChecked": null,
+      "lastStatus": null,
+      "lastDetail": null,
+      "addedAt": "2026-05-01T16:21:24.232Z",
+      "alertsSent": 0
     }
   ]
 }
