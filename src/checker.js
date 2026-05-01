@@ -25,13 +25,15 @@ async function checkShopifyJson(url) {
   const jsonUrl   = base.endsWith('.json') ? base : base + '.json';
 
   const res = await fetch(jsonUrl, { headers: HEADERS });
+  console.log(`  [Checker] JSON endpoint: ${jsonUrl} → HTTP ${res.status}`);
   if (!res.ok) return null;
 
   const data    = await res.json();
   const product = data.product;
-  if (!product) return null;
+  if (!product) { console.log(`  [Checker] No product in JSON response`); return null; }
 
   const variants = product.variants || [];
+  console.log(`  [Checker] Variants: ${variants.length}, First available: ${variants[0]?.available}`);
   const hasAvailableField = variants.some(v => typeof v.available !== 'undefined');
   if (!hasAvailableField) {
     console.log(`  [Checker] JSON missing 'available' field — falling back to HTML`);
