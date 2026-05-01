@@ -680,12 +680,14 @@ async function trackCurrentTab() {
 
     const { url, title } = tabRes;
 
-    if (!url || !url.includes('/products/')) {
-      toast('Please open a product page first', 'error');
+    if (!url || (!url.includes('/products/') && !url.includes('.html'))) {
+      toast('No product page found in your tabs — open a product page first', 'error');
       return;
     }
 
+    // Show which URL was detected and confirm
     btn.textContent = '⏳ Checking stock…';
+    toast(`Detected: ${url.substring(0, 60)}...`, '');
 
     // Bot-protected sites need DOM check via extension
     const BOT_PROTECTED = ['pk.khaadi.com', 'pk.sapphireonline.pk', 'jazmin.pk', 'baroque.pk', 'maryams.pk'];
