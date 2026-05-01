@@ -95,18 +95,6 @@
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-05-01T16:30:39.666Z",
       "alertsSent": 0
-    },
-    {
-      "id": "1777653069838",
-      "url": "https://www.farashaonline.pk/products/merlot-dust",
-      "name": "merlot dust",
-      "status": "in",
-      "platform": "shopify",
-      "lastChecked": "2026-05-01T17:00:31.430Z",
-      "lastStatus": "in",
-      "lastDetail": "In stock (script data)",
-      "addedAt": "2026-05-01T16:31:09.838Z",
-      "alertsSent": 1
     }
   ]
 }
