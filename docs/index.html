@@ -736,30 +736,57 @@ async function addProduct() {
   }
 
   const btn = document.getElementById('btn-add');
-  btn.disabled = true; btn.textContent = 'Saving…';
-
-  const product = {
-    id: Date.now().toString(),
-    url,
-    name: name || extractName(url),
-    status: 'out',
-    platform: null,
-    lastChecked: null,
-    lastStatus: null,
-    lastDetail: null,
-    addedAt: new Date().toISOString(),
-    alertsSent: 0
-  };
+  btn.disabled = true; btn.textContent = 'Checking stock…';
 
   try {
+    // If extension connected — use DOM check for accurate status
+    if (EXT_ID) {
+      try {
+        toast('Checking stock via extension... (10-20 sec)', '');
+        const res = await sendToExtension({
+          type:  'FAWARA_TRACK',
+          url,
+          name:  name || extractName(url),
+          owner: CFG.owner,
+          repo:  CFG.repo,
+          token: CFG.token
+        });
+        if (res && res.ok) {
+          document.getElementById('i-url').value  = '';
+          document.getElementById('i-name').value = '';
+          const st = res.stockResult && res.stockResult.status === 'in' ? '✅ In stock' : '❌ Out of stock';
+          toast(res.added ? 'Added! ' + st : 'Already tracking', res.added ? 'success' : '');
+          await loadProducts();
+          return;
+        }
+        console.warn('Extension track failed:', res && res.error);
+      } catch (extErr) {
+        console.warn('Extension error, falling back:', extErr.message);
+      }
+    }
+
+    // Fallback — save with pending status
+    const product = {
+      id:          Date.now().toString(),
+      url,
+      name:        name || extractName(url),
+      status:      'out',
+      platform:    null,
+      lastChecked: null,
+      lastStatus:  null,
+      lastDetail:  null,
+      addedAt:     new Date().toISOString(),
+      alertsSent:  0
+    };
     const updated = { products: [...products, product] };
     await saveProductsFile(updated, currentSha);
     document.getElementById('i-url').value  = '';
     document.getElementById('i-name').value = '';
-    toast('Added! Will check on next hourly run ✅', 'success');
+    toast('Added! Status updates on next hourly check ✅', 'success');
     await loadProducts();
+
   } catch (e) {
-    toast('Failed to save: ' + e.message, 'error');
+    toast('Failed: ' + e.message, 'error');
   } finally {
     btn.disabled = false; btn.textContent = '+ Track';
   }
