@@ -23,6 +23,18 @@
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-04-30T11:16:25.501Z",
       "alertsSent": 0
+    },
+    {
+      "id": "1777669757412",
+      "url": "https://zellbury.com/products/shirt-dupatta-wus26e20740",
+      "name": "Zellbury",
+      "status": "out",
+      "platform": "shopify",
+      "lastChecked": "2026-05-01T21:09:17.412Z",
+      "lastStatus": null,
+      "lastDetail": "Out of stock (schema.org)",
+      "addedAt": "2026-05-01T21:09:17.412Z",
+      "alertsSent": 0
     }
   ]
 }
