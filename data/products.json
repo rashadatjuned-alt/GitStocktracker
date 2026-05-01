@@ -83,6 +83,18 @@
       "lastDetail": "Text: add to cart",
       "addedAt": "2026-05-01T16:29:08.759Z",
       "alertsSent": 0
+    },
+    {
+      "id": "1777653039666",
+      "url": "https://www.farashaonline.pk/products/violet-whisper",
+      "name": "violet whisper",
+      "status": "out",
+      "platform": null,
+      "lastChecked": null,
+      "lastStatus": null,
+      "lastDetail": null,
+      "addedAt": "2026-05-01T16:30:39.666Z",
+      "alertsSent": 0
     }
   ]
 }
