@@ -353,6 +353,7 @@
       <div class="toolbar-left" id="items-label">Tracked products</div>
       <div class="toolbar-right">
         <button class="btn-secondary btn-sm" id="btn-refresh" onclick="loadProducts()">↻ Refresh</button>
+        <button class="btn-primary btn-sm" id="btn-check-now" onclick="checkNow()">▶ Check Now</button>
       </div>
     </div>
 
@@ -502,6 +503,35 @@ async function loadLastRun() {
     document.getElementById('last-run').innerHTML =
       `Last auto-check: ${status} ${when} &nbsp;·&nbsp; <a href="${url}" target="_blank">View logs →</a>`;
   } catch {}
+}
+
+// ── Check Now ────────────────────────────────────────────────────────────────
+async function checkNow() {
+  const btn = document.getElementById('btn-check-now');
+  btn.disabled = true; btn.textContent = '⏳ Running…';
+
+  try {
+    await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/actions/workflows/check-stock.yml/dispatches`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: 'main' })
+    });
+    toast('Check started! Results ready in ~30 seconds', 'success');
+
+    // Auto refresh after 35 seconds to show updated results
+    setTimeout(() => {
+      loadProducts();
+      toast('Refreshed with latest results', 'success');
+    }, 35000);
+
+  } catch (e) {
+    toast('Failed to trigger check: ' + e.message, 'error');
+  } finally {
+    // Re-enable after 40 seconds
+    setTimeout(() => {
+      btn.disabled = false; btn.textContent = '▶ Check Now';
+    }, 40000);
+  }
 }
 
 // ── Render ───────────────────────────────────────────────────────────────────
