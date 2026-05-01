@@ -107,6 +107,18 @@
       "lastDetail": "In stock (script data)",
       "addedAt": "2026-05-01T16:31:09.838Z",
       "alertsSent": 1
+    },
+    {
+      "id": "1777654185416",
+      "url": "https://www.limelight.pk/products/w2250st-xsl-014",
+      "name": "w2250st xsl 014",
+      "status": "out",
+      "platform": null,
+      "lastChecked": null,
+      "lastStatus": null,
+      "lastDetail": null,
+      "addedAt": "2026-05-01T16:49:45.416Z",
+      "alertsSent": 0
     }
   ]
 }
