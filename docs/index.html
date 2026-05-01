@@ -687,9 +687,14 @@ async function trackCurrentTab() {
 
     btn.textContent = '⏳ Checking stock…';
 
+    // Bot-protected sites need DOM check via extension
+    const BOT_PROTECTED = ['pk.khaadi.com', 'pk.sapphireonline.pk', 'jazmin.pk', 'baroque.pk', 'maryams.pk'];
+    const host = new URL(url).hostname;
+    const msgType = BOT_PROTECTED.includes(host) ? 'FAWARA_TRACK_DOM' : 'FAWARA_TRACK';
+
     // Track via extension (checks stock + saves to GitHub)
     const res = await sendToExtension({
-      type:  'FAWARA_TRACK',
+      type:  msgType,
       url,
       name:  title || '',
       owner: CFG.owner,
