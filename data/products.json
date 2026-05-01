@@ -35,6 +35,18 @@
       "lastDetail": "In stock (script data)",
       "addedAt": "2026-05-01T11:38:45.924Z",
       "alertsSent": 1
+    },
+    {
+      "id": "1777651553477",
+      "url": "https://zellbury.com/products/shirt-dupatta-wus26x20401",
+      "name": "shirt dupatta wus26x20401",
+      "status": "out",
+      "platform": null,
+      "lastChecked": null,
+      "lastStatus": null,
+      "lastDetail": null,
+      "addedAt": "2026-05-01T16:05:53.477Z",
+      "alertsSent": 0
     }
   ]
 }
