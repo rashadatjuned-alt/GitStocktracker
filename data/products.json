@@ -23,18 +23,6 @@
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-04-30T11:16:25.501Z",
       "alertsSent": 0
-    },
-    {
-      "id": "1777547979019",
-      "url": "https://global.iznikfashions.com/collections/unstitched/products/ue-626-embroidered-lawn",
-      "name": "ue 626 embroidered lawn",
-      "status": "in",
-      "platform": "shopify",
-      "lastChecked": "2026-05-01T07:53:27.842Z",
-      "lastStatus": "in",
-      "lastDetail": "In stock (script data)",
-      "addedAt": "2026-04-30T11:19:39.019Z",
-      "alertsSent": 1
     }
   ]
 }
