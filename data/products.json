@@ -6,7 +6,7 @@
       "name": "Zellbury",
       "status": "out",
       "platform": "shopify",
-      "lastChecked": "2026-05-01T16:00:28.815Z",
+      "lastChecked": "2026-05-01T16:06:16.539Z",
       "lastStatus": "out",
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-04-30T11:09:30.469Z",
@@ -18,7 +18,7 @@
       "name": "Iznik",
       "status": "out",
       "platform": "shopify",
-      "lastChecked": "2026-05-01T16:00:29.838Z",
+      "lastChecked": "2026-05-01T16:06:17.196Z",
       "lastStatus": "out",
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-04-30T11:16:25.501Z",
@@ -30,7 +30,7 @@
       "name": "a1160st xsl 489",
       "status": "in",
       "platform": "shopify",
-      "lastChecked": "2026-05-01T16:00:30.714Z",
+      "lastChecked": "2026-05-01T16:06:17.583Z",
       "lastStatus": "in",
       "lastDetail": "In stock (script data)",
       "addedAt": "2026-05-01T11:38:45.924Z",
@@ -40,13 +40,13 @@
       "id": "1777651553477",
       "url": "https://zellbury.com/products/shirt-dupatta-wus26x20401",
       "name": "shirt dupatta wus26x20401",
-      "status": "out",
-      "platform": null,
-      "lastChecked": null,
-      "lastStatus": null,
-      "lastDetail": null,
+      "status": "in",
+      "platform": "shopify",
+      "lastChecked": "2026-05-01T16:06:18.027Z",
+      "lastStatus": "out",
+      "lastDetail": "In stock (script data)",
       "addedAt": "2026-05-01T16:05:53.477Z",
-      "alertsSent": 0
+      "alertsSent": 1
     }
   ]
 }
