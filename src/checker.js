@@ -14,12 +14,8 @@ const HEADERS = {
   'Cache-Control': 'max-age=0',
 };
 
-// ─── Extract variant ID from URL if present ───────────────────────────────────
 function getVariantId(url) {
-  try {
-    const u = new URL(url);
-    return u.searchParams.get('variant') || null;
-  } catch { return null; }
+  try { return new URL(url).searchParams.get('variant') || null; } catch { return null; }
 }
 
 // ─── Shopify JSON endpoint ────────────────────────────────────────────────────
@@ -36,30 +32,24 @@ async function checkShopifyJson(url) {
   if (!product) return null;
 
   const variants = product.variants || [];
-
-  // Check if `available` field exists
   const hasAvailableField = variants.some(v => typeof v.available !== 'undefined');
   if (!hasAvailableField) {
     console.log(`  [Checker] JSON missing 'available' field — falling back to HTML`);
     return null;
   }
 
-  // If a specific variant is requested, check only that one
   if (variantId) {
     const variant = variants.find(v => String(v.id) === String(variantId));
     if (variant) {
       return {
         status: variant.available ? 'in' : 'out',
         title:  `${product.title} — ${variant.title}`,
-        detail: variant.available
-          ? `Variant "${variant.title}" is in stock`
-          : `Variant "${variant.title}" is out of stock`,
+        detail: variant.available ? `Variant "${variant.title}" in stock` : `Variant "${variant.title}" out of stock`,
         platform: 'shopify'
       };
     }
   }
 
-  // No variant specified — check overall product
   const anyAvailable = variants.some(v => v.available === true);
   const totalQty     = variants.reduce((s, v) => s + Math.max(0, v.inventory_quantity || 0), 0);
 
@@ -80,58 +70,64 @@ async function fetchHtml(url) {
   return res.text();
 }
 
+// ─── JSON-LD Schema.org (Khaadi, Sapphire, many non-Shopify sites) ────────────
+function checkJsonLd($) {
+  let result = null;
+
+  $('script[type="application/ld+json"]').each((_, el) => {
+    try {
+      const data  = JSON.parse($(el).html() || '');
+      const items = Array.isArray(data) ? data : [data];
+
+      for (const item of items) {
+        const avail = item.availability ||
+                      item?.offers?.availability ||
+                      (Array.isArray(item.offers) ? item.offers[0]?.availability : null) || '';
+        if (!avail) continue;
+
+        const isIn  = avail.includes('InStock');
+        const isOut = avail.includes('OutOfStock') || avail.includes('SoldOut') ||
+                      avail.includes('Discontinued') || avail.includes('InStoreOnly');
+
+        if (isIn)  { result = { status: 'in',  detail: 'In stock (schema.org)'  }; return false; }
+        if (isOut) { result = { status: 'out', detail: 'Out of stock (schema.org)' }; return false; }
+      }
+    } catch (_) {}
+  });
+
+  return result;
+}
+
 // ─── Shopify HTML parsing ─────────────────────────────────────────────────────
 function checkShopifyHtml($, url) {
   const variantId = getVariantId(url);
-
-  // Method 1: Find variant-specific availability in script tags
   let scriptResult = null;
 
   $('script').each((_, el) => {
     const text = $(el).html() || '';
-
-    // If tracking a specific variant, find that variant's data
     if (variantId) {
-      // Look for variant object containing our ID and available field
-      // Pattern: {"id":12345,"available":true/false,...}
-      const variantPattern = new RegExp(
-        `"id"\\s*:\\s*${variantId}[^}]*?"available"\\s*:\\s*(true|false)`, 'i'
-      );
-      const altPattern = new RegExp(
-        `"available"\\s*:\\s*(true|false)[^}]*?"id"\\s*:\\s*${variantId}`, 'i'
-      );
-
-      const m1 = text.match(variantPattern);
-      const m2 = text.match(altPattern);
-
+      const p1 = new RegExp(`"id"\\s*:\\s*${variantId}[^}]*?"available"\\s*:\\s*(true|false)`, 'i');
+      const p2 = new RegExp(`"available"\\s*:\\s*(true|false)[^}]*?"id"\\s*:\\s*${variantId}`, 'i');
+      const m1 = text.match(p1);
+      const m2 = text.match(p2);
       if (m1) { scriptResult = m1[1].toLowerCase() === 'true' ? 'in' : 'out'; return false; }
       if (m2) { scriptResult = m2[1].toLowerCase() === 'true' ? 'in' : 'out'; return false; }
     } else {
-      // No variant — look for first "available" flag in script
       const m = text.match(/"available"\s*:\s*(true|false)/i);
       if (m) { scriptResult = m[1].toLowerCase() === 'true' ? 'in' : 'out'; return false; }
     }
   });
 
   if (scriptResult !== null) {
-    return {
-      status: scriptResult,
-      detail: scriptResult === 'in' ? 'In stock (script data)' : 'Out of stock (script data)',
-      platform: 'shopify'
-    };
+    return { status: scriptResult, detail: scriptResult === 'in' ? 'In stock (script data)' : 'Out of stock (script data)', platform: 'shopify' };
   }
 
-  // Method 2: Cart form button
   const cartForm = $('form[action="/cart/add"], form[action*="cart/add"]');
   if (cartForm.length > 0) {
     const btn = cartForm.find('button[type="submit"], button[name="add"]');
     if (btn.length > 0) {
-      const disabled = btn.prop('disabled') ||
-        btn.attr('disabled') !== undefined ||
-        btn.hasClass('disabled') ||
-        btn.hasClass('sold-out') ||
-        btn.hasClass('soldout');
-
+      const disabled = btn.prop('disabled') || btn.attr('disabled') !== undefined ||
+                       btn.hasClass('disabled') || btn.hasClass('sold-out') || btn.hasClass('soldout');
       if (!disabled) {
         const t = btn.text().trim().toLowerCase();
         if (t.includes('sold out') || t.includes('out of stock') || t.includes('unavailable')) {
@@ -143,7 +139,6 @@ function checkShopifyHtml($, url) {
     }
   }
 
-  // Method 3: Sold-out CSS class
   if ($('.sold-out, .soldout, .product--sold-out').length > 0) {
     return { status: 'out', detail: 'Sold-out class detected', platform: 'shopify' };
   }
@@ -179,7 +174,8 @@ function checkKeywords($, platform = 'generic') {
 // ─── Platform detection ───────────────────────────────────────────────────────
 function detectPlatform(url, html = '') {
   if (url.includes('/products/') || html.includes('cdn.shopify.com') || html.includes('Shopify.theme')) return 'shopify';
-  if (html.includes('woocommerce')) return 'woocommerce';
+  if (html.includes('woocommerce'))  return 'woocommerce';
+  if (html.includes('demandware') || html.includes('on/demandware')) return 'demandware';
   return 'generic';
 }
 
@@ -220,8 +216,19 @@ async function checkStock(product) {
     const $        = cheerio.load(html);
     const platform = detectPlatform(url, html);
 
+    // 3. Try JSON-LD first for non-Shopify platforms (Khaadi, Sapphire etc.)
+    if (platform !== 'shopify') {
+      const jsonLdResult = checkJsonLd($);
+      if (jsonLdResult) return { ...jsonLdResult, platform };
+    }
+
     if (platform === 'shopify')     return checkShopifyHtml($, url);
     if (platform === 'woocommerce') return checkWooCommerce($);
+
+    // 4. For Demandware and generic — try JSON-LD then keywords
+    const jsonLdResult = checkJsonLd($);
+    if (jsonLdResult) return { ...jsonLdResult, platform };
+
     return checkKeywords($, platform);
 
   } catch (err) {
