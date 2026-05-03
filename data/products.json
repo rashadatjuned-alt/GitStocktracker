@@ -47,6 +47,18 @@
       "lastDetail": "Detected: \"notify me when available\"",
       "addedAt": "2026-05-03T05:03:54.525Z",
       "alertsSent": 0
+    },
+    {
+      "id": "1777784830756",
+      "url": "https://pk.sapphireonline.pk/collections/new-in/products/U3PESTS6V323.html",
+      "name": "U3PESTS6V323",
+      "status": "out",
+      "platform": "shopify",
+      "lastChecked": "2026-05-03T05:07:10.756Z",
+      "lastStatus": null,
+      "lastDetail": "Text: sold out",
+      "addedAt": "2026-05-03T05:07:10.756Z",
+      "alertsSent": 0
     }
   ]
 }
