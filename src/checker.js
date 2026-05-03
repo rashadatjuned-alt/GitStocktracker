@@ -148,15 +148,31 @@ function checkShopifyHtml($, url) {
   return checkKeywords($, 'shopify');
 }
 
+// ─── Sapphire specific ───────────────────────────────────────────────────────
+function checkSapphire($) {
+  const addToBag = $('.add-to-cart');
+  const notifyMe = $('.notify-me-button');
+  if (addToBag.length > 0 && addToBag.text().toLowerCase().includes('add to bag')) {
+    return { status: 'in', detail: 'Sapphire: Add to Bag available', platform: 'sapphire' };
+  }
+  if (notifyMe.length > 0 && addToBag.length === 0) {
+    return { status: 'out', detail: 'Sapphire: Notify Me only — out of stock', platform: 'sapphire' };
+  }
+  if (addToBag.length > 0) {
+    return { status: 'in', detail: 'Sapphire: Add to Bag available', platform: 'sapphire' };
+  }
+  return checkKeywords($, 'sapphire');
+}
+
 // ─── Generic keyword scan ─────────────────────────────────────────────────────
 function checkKeywords($, platform = 'generic') {
-  $('script, style, noscript, nav, footer, header').remove();
+  // Remove sections that may contain misleading stock text from other products
+  $('script, style, noscript, nav, footer, header, .recently-viewed, .recommendations, .related-products').remove();
   const body = $('body').text().replace(/\s+/g, ' ').toLowerCase();
 
   const outSignals = [
-    'sold out', 'out of stock', 'currently unavailable', 'not available',
-    'no longer available', 'out-of-stock', 'notify me when available',
-    'temporarily unavailable',
+    'out of stock', 'currently unavailable', 'not available',
+    'no longer available', 'out-of-stock', 'temporarily unavailable',
   ];
   const inSignals = [
     'add to cart', 'add to bag', 'add to basket',
@@ -175,6 +191,7 @@ function checkKeywords($, platform = 'generic') {
 
 // ─── Platform detection ───────────────────────────────────────────────────────
 function detectPlatform(url, html = '') {
+  if (url.includes('pk.sapphireonline.pk')) return 'sapphire';
   if (url.includes('/products/') || html.includes('cdn.shopify.com') || html.includes('Shopify.theme')) return 'shopify';
   if (html.includes('woocommerce'))  return 'woocommerce';
   if (html.includes('demandware') || html.includes('on/demandware')) return 'demandware';
@@ -203,7 +220,7 @@ async function checkStock(product) {
   const { url } = product;
 
   try {
-    const isShopify = product.platform === 'shopify' || url.includes('/products/');
+    const isShopify = (product.platform === 'shopify' || url.includes('/products/')) && !url.includes('pk.sapphireonline.pk');
 
     // 1. Try Shopify JSON (variant-aware)
     if (isShopify) {
@@ -224,6 +241,7 @@ async function checkStock(product) {
       if (jsonLdResult) return { ...jsonLdResult, platform };
     }
 
+    if (platform === 'sapphire')    return checkSapphire($);
     if (platform === 'shopify')     return checkShopifyHtml($, url);
     if (platform === 'woocommerce') return checkWooCommerce($);
 
