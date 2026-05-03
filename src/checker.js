@@ -150,17 +150,24 @@ function checkShopifyHtml($, url) {
 
 // ─── Sapphire specific ───────────────────────────────────────────────────────
 function checkSapphire($) {
-  const addToBag = $('.add-to-cart');
-  const notifyMe = $('.notify-me-button');
-  if (addToBag.length > 0 && addToBag.text().toLowerCase().includes('add to bag')) {
-    return { status: 'in', detail: 'Sapphire: Add to Bag available', platform: 'sapphire' };
+  // Most reliable signal: sold-out-badge class present = out of stock
+  const soldOutBadge = $('.sold-out-badge.sold-out, .badge-wrapper.sold-out');
+  if (soldOutBadge.length > 0) {
+    return { status: 'out', detail: 'Sapphire: Sold out badge detected', platform: 'sapphire' };
   }
-  if (notifyMe.length > 0 && addToBag.length === 0) {
-    return { status: 'out', detail: 'Sapphire: Notify Me only — out of stock', platform: 'sapphire' };
+
+  // Second signal: notifyMe-wrapper without d-none = out of stock
+  // notifyMe-wrapper d-none = hidden = in stock
+  const notifyWrapper = $('.notifyMe-wrapper');
+  if (notifyWrapper.length > 0) {
+    const isHidden = notifyWrapper.hasClass('d-none');
+    if (isHidden) {
+      return { status: 'in', detail: 'Sapphire: Add to Bag available', platform: 'sapphire' };
+    } else {
+      return { status: 'out', detail: 'Sapphire: Notify Me shown — out of stock', platform: 'sapphire' };
+    }
   }
-  if (addToBag.length > 0) {
-    return { status: 'in', detail: 'Sapphire: Add to Bag available', platform: 'sapphire' };
-  }
+
   return checkKeywords($, 'sapphire');
 }
 
