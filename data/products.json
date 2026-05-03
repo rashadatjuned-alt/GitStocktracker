@@ -35,6 +35,18 @@
       "lastDetail": "Out of stock (script data)",
       "addedAt": "2026-05-01T21:09:17.412Z",
       "alertsSent": 0
+    },
+    {
+      "id": "1777784634524",
+      "url": "https://pk.sapphireonline.pk/collections/unstitched/products/3PDYS26V3134.html",
+      "name": "3PDYS26V3134",
+      "status": "in",
+      "platform": "shopify",
+      "lastChecked": "2026-05-03T05:03:54.524Z",
+      "lastStatus": null,
+      "lastDetail": "Text: add to cart",
+      "addedAt": "2026-05-03T05:03:54.525Z",
+      "alertsSent": 0
     }
   ]
 }
