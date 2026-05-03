@@ -16,13 +16,13 @@
       --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
     }
     body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; line-height:1.5; }
-
+ 
     /* Loading */
     #loading { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; z-index:100; }
     #loading .spinner { width:24px; height:24px; border:2px solid var(--muted); border-top-color:transparent; border-radius:50%; animation:spin .65s linear infinite; }
     #loading p { color:var(--muted); font-size:14px; }
     #loading.hidden { display:none; }
-
+ 
     /* Setup */
     #setup-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; }
     .setup-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:40px; width:100%; max-width:420px; }
@@ -37,7 +37,7 @@
     .field-hint { font-size:12px; color:var(--muted); margin-top:5px; }
     .field-hint a { color:var(--blue); text-decoration:none; }
     .setup-err { color:var(--red); font-size:13px; margin-bottom:12px; display:none; }
-
+ 
     /* App */
     #app { display:none; }
     .topbar { background:var(--bg2); border-bottom:1px solid var(--border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
@@ -47,15 +47,15 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
     .topbar-right { display:flex; align-items:center; gap:10px; }
     .repo-tag { font-size:12px; color:var(--muted); background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:3px 10px; }
-
+ 
     .main { max-width:900px; margin:0 auto; padding:32px 20px; }
-
+ 
     /* Stats */
     .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:28px; }
     .stat { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; }
     .stat-val { font-size:30px; font-weight:600; line-height:1; margin-bottom:5px; }
     .stat-lbl { font-size:12px; color:var(--muted); }
-
+ 
     /* Add card */
     .add-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; margin-bottom:24px; }
     .add-card h2 { font-size:13px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:14px; }
@@ -65,7 +65,7 @@
     .add-row input::placeholder { color:var(--muted2); }
     .inp-url { flex:1; min-width:240px; }
     .inp-name { width:180px; }
-
+ 
     /* Buttons */
     button { border:none; border-radius:var(--radius-sm); cursor:pointer; font-family:var(--font); font-size:14px; font-weight:500; height:40px; padding:0 18px; transition:opacity .15s,background .15s; white-space:nowrap; }
     button:disabled { opacity:.4; cursor:not-allowed; }
@@ -78,12 +78,12 @@
     .btn-del:hover:not(:disabled) { background:#2d0a0a; }
     .btn-check { background:linear-gradient(135deg,#1a4a2e,#276749); color:var(--green); border:1px solid var(--green-bd); }
     .btn-check:hover:not(:disabled) { background:linear-gradient(135deg,#1f5c38,#2d7a52); }
-
+ 
     /* Toolbar */
     .toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
     .toolbar-left { font-size:14px; font-weight:500; }
     .toolbar-right { display:flex; gap:8px; }
-
+ 
     /* Cards */
     #items { display:flex; flex-direction:column; gap:10px; }
     .empty { text-align:center; padding:64px 20px; color:var(--muted); font-size:14px; border:1px dashed var(--border2); border-radius:var(--radius); }
@@ -111,25 +111,25 @@
     .meta-text { font-size:12px; color:var(--muted); }
     .meta-text b { color:#999; }
     .platform-pill { font-size:11px; color:var(--muted); background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:1px 7px; }
-
+ 
     /* Last run */
     .last-run { text-align:center; padding:20px; color:var(--muted); font-size:13px; margin-top:8px; }
     .last-run a { color:var(--blue); text-decoration:none; }
-
+ 
     /* Toast */
     #toast { position:fixed; bottom:24px; right:24px; background:var(--bg2); border:1px solid var(--border2); border-radius:10px; padding:13px 18px; font-size:14px; max-width:320px; transform:translateY(80px); opacity:0; transition:all .3s; z-index:999; pointer-events:none; }
     #toast.show { transform:translateY(0); opacity:1; }
     #toast.success { border-color:var(--green-bd); color:var(--green); }
     #toast.error { border-color:var(--red-bd); color:var(--red); }
-
+ 
     .spinner { display:inline-block; width:11px; height:11px; border:1.5px solid currentColor; border-top-color:transparent; border-radius:50%; animation:spin .65s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
   </style>
 </head>
 <body>
-
+ 
 <div id="loading"><span class="spinner"></span><p>Loading...</p></div>
-
+ 
 <div id="setup-screen" style="display:none;">
   <div class="setup-card">
     <div class="logo">📦</div>
@@ -155,7 +155,7 @@
     <button class="btn-primary" style="width:100%;height:44px;font-size:15px;" onclick="connect()">Connect</button>
   </div>
 </div>
-
+ 
 <div id="app">
   <div class="topbar">
     <div class="topbar-left">
@@ -167,7 +167,7 @@
       <button class="btn-secondary btn-sm" onclick="signOut()">Sign out</button>
     </div>
   </div>
-
+ 
   <div class="main">
     <div class="stats">
       <div class="stat"><div class="stat-val" id="s-total">—</div><div class="stat-lbl">Tracking</div></div>
@@ -175,7 +175,7 @@
       <div class="stat"><div class="stat-val" style="color:var(--green)" id="s-in">—</div><div class="stat-lbl">Back in stock</div></div>
       <div class="stat"><div class="stat-val" style="color:var(--yellow)" id="s-alerts">—</div><div class="stat-lbl">Alerts sent</div></div>
     </div>
-
+ 
     <div class="add-card">
       <h2>Track a product</h2>
       <div class="add-row">
@@ -184,7 +184,7 @@
         <button class="btn-primary" id="btn-add" onclick="addProduct()">+ Track</button>
       </div>
     </div>
-
+ 
     <div class="toolbar">
       <div class="toolbar-left" id="items-label">Tracked products</div>
       <div class="toolbar-right">
@@ -192,25 +192,25 @@
         <button class="btn-check btn-sm" id="btn-check-now" onclick="checkNow()">▶ Check Now</button>
       </div>
     </div>
-
+ 
     <div id="items"></div>
     <div class="last-run" id="last-run"></div>
   </div>
 </div>
-
+ 
 <div id="toast"></div>
-
+ 
 <script>
 // ── Config ────────────────────────────────────────────────────────────────────
 let CFG = {};
 const LS_KEY = 'st-cfg-v2';
-
+ 
 function loadCfg() { try { CFG = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); } catch { CFG = {}; } }
 function saveCfg() { localStorage.setItem(LS_KEY, JSON.stringify(CFG)); }
-
+ 
 // ── GitHub API ────────────────────────────────────────────────────────────────
 const GH = 'https://api.github.com';
-
+ 
 async function ghFetch(path, opts = {}) {
   const r = await fetch(`${GH}${path}`, {
     ...opts,
@@ -227,13 +227,13 @@ async function ghFetch(path, opts = {}) {
   }
   return r.status === 204 ? null : r.json();
 }
-
+ 
 async function getProductsFile() {
   const data = await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/contents/data/products.json`);
   const content = JSON.parse(atob(data.content.replace(/\n/g, '')));
   return { content, sha: data.sha };
 }
-
+ 
 async function saveProductsFile(content, sha) {
   const body = JSON.stringify(content, null, 2);
   await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/contents/data/products.json`, {
@@ -246,7 +246,7 @@ async function saveProductsFile(content, sha) {
     })
   });
 }
-
+ 
 async function triggerWorkflow() {
   await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/actions/workflows/check-stock.yml/dispatches`, {
     method: 'POST',
@@ -254,17 +254,17 @@ async function triggerWorkflow() {
     body: JSON.stringify({ ref: 'main' })
   });
 }
-
+ 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 async function connect() {
   const owner = document.getElementById('s-owner').value.trim();
   const repo  = document.getElementById('s-repo').value.trim();
   const token = document.getElementById('s-token').value.trim();
   if (!owner || !repo || !token) { showSetupErr('Please fill in all fields.'); return; }
-
+ 
   const btn = document.querySelector('#setup-screen button');
   btn.disabled = true; btn.textContent = 'Connecting…';
-
+ 
   try {
     CFG = { owner, repo, token };
     await ghFetch(`/repos/${owner}/${repo}/contents/data/products.json`);
@@ -277,18 +277,18 @@ async function connect() {
     btn.disabled = false; btn.textContent = 'Connect';
   }
 }
-
+ 
 function showSetupErr(msg) {
   const el = document.getElementById('setup-err');
   el.textContent = msg; el.style.display = 'block';
 }
-
+ 
 function signOut() {
   localStorage.removeItem(LS_KEY); CFG = {};
   document.getElementById('app').style.display = 'none';
   document.getElementById('setup-screen').style.display = 'flex';
 }
-
+ 
 // ── App ───────────────────────────────────────────────────────────────────────
 function showApp() {
   document.getElementById('loading').classList.add('hidden');
@@ -298,11 +298,11 @@ function showApp() {
   loadProducts();
   setInterval(loadProducts, 3 * 60 * 1000);
 }
-
+ 
 // ── Products ──────────────────────────────────────────────────────────────────
 let currentSha = null;
 let products   = [];
-
+ 
 async function loadProducts() {
   const btn = document.getElementById('btn-refresh');
   btn.disabled = true; btn.textContent = '↻ Loading…';
@@ -318,7 +318,7 @@ async function loadProducts() {
     btn.disabled = false; btn.textContent = '↻ Refresh';
   }
 }
-
+ 
 async function loadLastRun() {
   try {
     const runs = await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/actions/workflows/check-stock.yml/runs?per_page=1`);
@@ -330,26 +330,26 @@ async function loadLastRun() {
       `Last auto-check: ${status} ${when} &nbsp;·&nbsp; <a href="${run.html_url}" target="_blank">View logs →</a>`;
   } catch {}
 }
-
+ 
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
   const total   = products.length;
   const out     = products.filter(p => p.status === 'out').length;
   const inStock = products.filter(p => p.status === 'in').length;
   const alerts  = products.reduce((s, p) => s + (p.alertsSent || 0), 0);
-
+ 
   document.getElementById('s-total').textContent  = total;
   document.getElementById('s-out').textContent    = out;
   document.getElementById('s-in').textContent     = inStock;
   document.getElementById('s-alerts').textContent = alerts;
   document.getElementById('items-label').textContent = `Tracked products (${total})`;
-
+ 
   const el = document.getElementById('items');
   if (total === 0) {
     el.innerHTML = `<div class="empty"><span class="empty-icon">📭</span>No products yet.<br>Paste a product URL above to start tracking.</div>`;
     return;
   }
-
+ 
   el.innerHTML = products.map(p => {
     const icon    = p.status === 'in' ? '✅' : p.status === 'out' ? '🔴' : '⏳';
     const checked = p.lastChecked ? new Date(p.lastChecked).toLocaleString() : 'Not checked yet';
@@ -374,18 +374,18 @@ function render() {
     </div>`;
   }).join('');
 }
-
+ 
 function badge(p) {
   if (p.status === 'in')    return `<span class="badge badge-in"><span class="dot dot-in"></span> In stock</span>`;
   if (p.status === 'out')   return `<span class="badge badge-out"><span class="dot dot-out"></span> Out of stock</span>`;
   if (p.status === 'error') return `<span class="badge badge-err">⚠ Error</span>`;
   return `<span class="badge badge-pend">⏳ Pending</span>`;
 }
-
+ 
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
+ 
 // ── Add product ───────────────────────────────────────────────────────────────
 async function addProduct() {
   const url  = document.getElementById('i-url').value.trim();
@@ -393,10 +393,10 @@ async function addProduct() {
   if (!url) { toast('Please enter a product URL', 'error'); return; }
   try { new URL(url); } catch { toast('Please enter a valid URL (include https://)', 'error'); return; }
   if (products.find(p => p.url === url)) { toast('Already tracking this URL', 'error'); return; }
-
+ 
   const btn = document.getElementById('btn-add');
   btn.disabled = true; btn.textContent = 'Adding…';
-
+ 
   const product = {
     id: Date.now().toString(), url,
     name: name || extractName(url),
@@ -404,7 +404,7 @@ async function addProduct() {
     lastChecked: null, lastStatus: null, lastDetail: null,
     addedAt: new Date().toISOString(), alertsSent: 0
   };
-
+ 
   try {
     const updated = { products: [...products, product] };
     await saveProductsFile(updated, currentSha);
@@ -420,7 +420,7 @@ async function addProduct() {
     btn.disabled = false; btn.textContent = '+ Track';
   }
 }
-
+ 
 // ── Remove product ────────────────────────────────────────────────────────────
 async function removeProduct(id) {
   if (!confirm('Stop tracking this product?')) return;
@@ -433,12 +433,12 @@ async function removeProduct(id) {
     toast('Failed: ' + e.message, 'error');
   }
 }
-
+ 
 // ── Check Now ─────────────────────────────────────────────────────────────────
 async function checkNow() {
   const btn = document.getElementById('btn-check-now');
   btn.disabled = true; btn.textContent = '⏳ Running…';
-
+ 
   try {
     await triggerWorkflow();
     toast('Check started — refreshing in 35s', 'success');
@@ -452,7 +452,7 @@ async function checkNow() {
     setTimeout(() => { btn.disabled = false; btn.textContent = '▶ Check Now'; }, 40000);
   }
 }
-
+ 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function extractName(url) {
   try {
@@ -460,7 +460,7 @@ function extractName(url) {
     return (parts[parts.length - 1] || '').replace(/[-_]/g, ' ').replace(/\.html?$/, '').trim() || 'Product';
   } catch { return 'Product'; }
 }
-
+ 
 let toastTimer;
 function toast(msg, type = '') {
   const el = document.getElementById('toast');
@@ -468,14 +468,14 @@ function toast(msg, type = '') {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.className = '', 4000);
 }
-
+ 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 loadCfg();
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.activeElement.id === 'i-url') addProduct();
   if (e.key === 'Enter' && document.activeElement.id === 's-token') connect();
 });
-
+ 
 if (CFG.owner && CFG.repo && CFG.token) {
   showApp();
 } else {
