@@ -1,16 +1,13 @@
 {
-  "name": "stock-tracker",
-  "version": "3.0.0",
-  "description": "Hourly stock checker via GitHub Actions + Telegram alerts",
+  "name": "git-stock-tracker",
+  "version": "1.0.0",
+  "description": "Automated stock tracking engine",
   "main": "check.js",
-  "scripts": {
-    "check": "node check.js",
-    "list":  "node manage.js list",
-    "add":   "node manage.js add",
-    "start": "node check.js"
-  },
   "dependencies": {
-    "cheerio": "^1.0.0",
-    "dotenv":  "^16.0.0"
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "scripts": {
+    "start": "node check.js"
   }
 }
