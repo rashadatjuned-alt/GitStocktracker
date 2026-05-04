@@ -2,36 +2,41 @@
   "1777547370469": {
     "status": "out",
     "platform": "shopify",
-    "lastChecked": "2026-05-04T06:49:15.996Z",
+    "lastChecked": "2026-05-04T06:58:51.986Z",
     "lastDetail": "Out of stock (script data)",
-    "errorCount": 0
+    "errorCount": 0,
+    "lastStatus": "out"
   },
   "1777547785501": {
     "status": "out",
     "platform": "shopify",
-    "lastChecked": "2026-05-04T06:49:20.695Z",
+    "lastChecked": "2026-05-04T06:58:56.436Z",
     "lastDetail": "Out of stock (script data)",
-    "errorCount": 0
+    "errorCount": 0,
+    "lastStatus": "out"
   },
   "1777669757412": {
     "status": "out",
     "platform": "shopify",
-    "lastChecked": "2026-05-04T06:49:24.877Z",
+    "lastChecked": "2026-05-04T06:59:01.275Z",
     "lastDetail": "Out of stock (script data)",
-    "errorCount": 0
+    "errorCount": 0,
+    "lastStatus": "out"
   },
   "1777789357073": {
     "status": "in",
     "platform": "sapphire",
-    "lastChecked": "2026-05-04T06:49:28.402Z",
+    "lastChecked": "2026-05-04T06:59:06.910Z",
     "lastDetail": "Sapphire: Add to Bag available",
-    "errorCount": 0
+    "errorCount": 0,
+    "lastStatus": "in"
   },
   "1777790740381": {
     "status": "in",
     "platform": "sapphire",
-    "lastChecked": "2026-05-04T06:49:33.136Z",
+    "lastChecked": "2026-05-04T06:59:10.472Z",
     "lastDetail": "Sapphire: Add to Bag available",
-    "errorCount": 0
+    "errorCount": 0,
+    "lastStatus": "in"
   }
 }
