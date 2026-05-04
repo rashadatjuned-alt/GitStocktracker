@@ -1,4 +1,10 @@
 {
+  "1777883465": {
+    "id": "1777883465",
+    "name": "Added-via-TG",
+    "status": "in",
+    "lastChecked": "2026-05-04T09:04:52.601Z"
+  },
   "1777547370469": {
     "status": "in",
     "platform": "shopify",
@@ -9,20 +15,16 @@
     "alertsSent": 1
   },
   "1777547785501": {
-    "status": "out",
-    "platform": "shopify",
-    "lastChecked": "2026-05-04T07:28:43.396Z",
-    "lastDetail": "Out of stock (script data)",
-    "errorCount": 0,
-    "lastStatus": "out"
+    "id": "1777547785501",
+    "name": "Iznik - UE-484",
+    "status": "in",
+    "lastChecked": "2026-05-04T09:04:48.822Z"
   },
   "1777669757412": {
-    "status": "out",
-    "platform": "shopify",
-    "lastChecked": "2026-05-04T07:28:47.552Z",
-    "lastDetail": "Out of stock (script data)",
-    "errorCount": 0,
-    "lastStatus": "out"
+    "id": "1777669757412",
+    "name": "Zellbury - WUS26E20740",
+    "status": "in",
+    "lastChecked": "2026-05-04T09:04:49.768Z"
   },
   "1777789357073": {
     "status": "in",
@@ -41,11 +43,15 @@
     "lastStatus": "in"
   },
   "1777879516276": {
-    "status": "out",
-    "platform": "shopify",
-    "lastChecked": "2026-05-04T07:28:52.990Z",
-    "lastStatus": "out",
-    "lastDetail": "Out of stock (script data)",
-    "errorCount": 0
+    "id": "1777879516276",
+    "name": "Zellbury",
+    "status": "in",
+    "lastChecked": "2026-05-04T09:04:50.318Z"
+  },
+  "1777880458764": {
+    "id": "1777880458764",
+    "name": "Product",
+    "status": "in",
+    "lastChecked": "2026-05-04T09:04:51.448Z"
   }
 }
