@@ -17,14 +17,16 @@
   "1777547785501": {
     "id": "1777547785501",
     "name": "Iznik - UE-484",
-    "status": "in",
-    "lastChecked": "2026-05-04T09:04:48.822Z"
+    "status": "out",
+    "url": "https://global.iznikfashions.com/products/ue-484-embroidered-lawn",
+    "lastChecked": "2026-05-04T09:09:58.968Z"
   },
   "1777669757412": {
     "id": "1777669757412",
     "name": "Zellbury - WUS26E20740",
-    "status": "in",
-    "lastChecked": "2026-05-04T09:04:49.768Z"
+    "status": "out",
+    "url": "https://zellbury.com/products/shirt-dupatta-wus26e20740",
+    "lastChecked": "2026-05-04T09:09:59.284Z"
   },
   "1777789357073": {
     "status": "in",
@@ -45,13 +47,15 @@
   "1777879516276": {
     "id": "1777879516276",
     "name": "Zellbury",
-    "status": "in",
-    "lastChecked": "2026-05-04T09:04:50.318Z"
+    "status": "out",
+    "url": "https://zellbury.com/products/kurta-dupatta-wps2622397",
+    "lastChecked": "2026-05-04T09:09:59.443Z"
   },
   "1777880458764": {
     "id": "1777880458764",
     "name": "Product",
-    "status": "in",
-    "lastChecked": "2026-05-04T09:04:51.448Z"
+    "status": "out",
+    "url": "https://zellbury.com/products/shirt-dupatta-wus26x20401",
+    "lastChecked": "2026-05-04T09:09:59.554Z"
   }
 }
