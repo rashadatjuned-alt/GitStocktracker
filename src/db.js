@@ -1,42 +1,45 @@
 const fs = require('fs');
 const path = require('path');
 
-const productsPath = path.join(__dirname, '../data/products.json');
-const statePath = path.join(__dirname, '../data/state.json');
+const PRODUCTS_FILE = path.join(__dirname, '../data/products.json');
 
+/**
+ * Combined Logic: Reads products and handles various JSON formats
+ * to prevent "products.map is not a function" errors.
+ */
 function getAllProducts() {
-  // Read the static configuration (the links you want to track)
-  let products = [];
-  if (fs.existsSync(productsPath)) {
-    products = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
-  } else {
-    console.warn('[DB] data/products.json not found!');
+  try {
+    if (!fs.existsSync(PRODUCTS_FILE)) {
+      return [];
+    }
+    
+    const rawData = fs.readFileSync(PRODUCTS_FILE, 'utf8');
+    const products = JSON.parse(rawData);
+    
+    // This handles both the [{}, {}] and {"products": [{}, {}]} formats
+    // which ensures compatibility between Dashboard and Telegram updates.
+    const productsArray = products.products || (Array.isArray(products) ? products : []);
+    
+    return productsArray;
+  } catch (error) {
+    console.error("Fatal error reading products.json:", error);
+    return [];
   }
-
-  // Read the dynamic state (what the bot has tracked so far)
-  let state = {};
-  if (fs.existsSync(statePath)) {
-    state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
-  }
-
-  // Merge them together for the checker
-  return products.map(p => {
-    const productState = state[p.id] || {};
-    return { ...p, ...productState };
-  });
 }
 
-function updateProduct(id, updates) {
-  let state = {};
-  if (fs.existsSync(statePath)) {
-    state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+/**
+ * Optional: Helper to save products back in the standard format
+ */
+function saveProducts(productsArray) {
+  try {
+    const data = JSON.stringify({ products: productsArray }, null, 2);
+    fs.writeFileSync(PRODUCTS_FILE, data);
+  } catch (error) {
+    console.error("Error saving products:", error);
   }
-  
-  // Merge the new status updates into the existing state for this ID
-  state[id] = { ...(state[id] || {}), ...updates };
-  
-  // Save ONLY to state.json
-  fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 }
 
-module.exports = { getAllProducts, updateProduct };
+module.exports = {
+  getAllProducts,
+  saveProducts
+};
