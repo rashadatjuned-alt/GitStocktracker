@@ -1,94 +1,79 @@
-require('dotenv').config();
-const { checkStock } = require('./src/checker');
-const { sendStockAlert, sendInfo } = require('./src/notifier');
-const { getAllProducts, updateProduct } = require('./src/db');
+const fs = require('fs');
+const axios = require('axios');
 
-// Helper function to create randomized delays (Jitter)
-const sleep = (minMs, maxMs) => {
-  const ms = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
+// Load configurations from GitHub Secrets
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-async function main() {
-  const products = getAllProducts();
+// File paths
+const productsPath = './data/products.json';
+const statePath = './data/state.json';
 
-  console.log(`\n====================================`);
-  console.log(`Stock Tracker — ${new Date().toLocaleString('en-SG', { timeZone: 'Asia/Singapore' })} SGT`);
-  console.log(`Checking ${products.length} product(s)...`);
-  console.log(`====================================\n`);
-
-  if (products.length === 0) {
-    console.log('No products tracked.');
-    return;
-  }
-
-  let backInStock = [];
-
-  for (const product of products) {
-    try {
-      console.log(`→ ${product.name}`);
-      console.log(`  URL: ${product.url}`);
-
-      const result = await checkStock(product);
-      const prevStatus = product.status;
-      const newStatus = result.status;
-
-      let errorCount = product.errorCount || 0;
-      if (newStatus === 'error') {
-        errorCount += 1;
-        if (errorCount === 3) {
-          await sendInfo(`⚠️ Tracker failing for ${product.name}. Might be blocked or site changed layout.`);
-        }
-      } else {
-        errorCount = 0; 
-      }
-
-      updateProduct(product.id, {
-        status: newStatus,
-        platform: result.platform || product.platform,
-        lastChecked: new Date().toISOString(),
-        lastStatus: prevStatus,
-        lastDetail: result.detail,
-        errorCount: errorCount 
-      });
-
-      const icon = newStatus === 'in' ? '✅' : newStatus === 'out' ? '❌' : (newStatus === 'error' ? '⚠️' : '❓');
-      console.log(`  Status: ${icon} ${newStatus} — ${result.detail}`);
-
-      // Only alert if it was explicitly 'out' before
-      if (prevStatus === 'out' && newStatus === 'in') {
-        console.log(`  🔔 BACK IN STOCK! Sending alert...`);
-        const sent = await sendStockAlert(product, result);
-        if (sent) {
-          updateProduct(product.id, { alertsSent: (product.alertsSent || 0) + 1 });
-          backInStock.push(product.name);
-        }
-      }
-
-      console.log();
-      
-      // Jitter delay: Wait 2.5 to 5 seconds between checks to avoid IP bans
-      await sleep(2500, 5000); 
-
-    } catch (err) {
-      console.error(`  ✗ Error: ${err.message}\n`);
-      
-      const currentErrors = (product.errorCount || 0) + 1;
-      updateProduct(product.id, {
-        status: 'error',
-        lastChecked: new Date().toISOString(),
-        lastDetail: err.message,
-        errorCount: currentErrors
-      });
-    }
-  }
-
-  console.log(`====================================`);
-  console.log(`Done. ${backInStock.length > 0 ? `Alerts sent: ${backInStock.join(', ')}` : 'No stock changes.'}`);
-  console.log(`====================================\n`);
+// Load Data
+let productsData = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
+const products = productsData.products || productsData;
+let state = {};
+if (fs.existsSync(statePath)) {
+    state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
 }
 
-main().catch(err => {
-  console.error('Fatal error:', err);
-  process.exit(1);
-});
+// --- Helper: Send Telegram Message ---
+async function sendTelegram(message) {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    try {
+        await axios.post(url, { chat_id: CHAT_ID, text: message, parse_mode: 'Markdown' });
+    } catch (e) { console.error("Telegram Error:", e.message); }
+}
+
+// --- Helper: Update State ---
+function updateProductState(id, status, name) {
+    state[id] = {
+        id: id,
+        name: name,
+        status: status,
+        lastChecked: new Date().toISOString()
+    };
+}
+
+// --- Main Checker ---
+async function main() {
+    console.log("====================================");
+    console.log(`Stock Tracker — ${new Date().toLocaleString()}`);
+    console.log(`Checking ${products.length} product(s)...`);
+    console.log("====================================");
+
+    for (const p of products) {
+        console.log(`→ ${p.name}`);
+        let status = 'out';
+
+        try {
+            // Logic to check stock (Simplified for global use)
+            const response = await axios.get(p.url, { timeout: 10000 });
+            const html = response.data.toLowerCase();
+            
+            // Check for "In Stock" indicators
+            if (html.includes('in stock') || html.includes('add to cart') || html.includes('available')) {
+                status = 'in';
+            }
+
+            // Alert if status changed to 'in'
+            if (status === 'in' && (!state[p.id] || state[p.id].status !== 'in')) {
+                await sendTelegram(`✅ *IN STOCK:* ${p.name}\n${p.url}`);
+            }
+
+            // Update the local state variable
+            updateProductState(p.id, status, p.name);
+            console.log(`   Status: ${status === 'in' ? '✅' : '❌'}`);
+
+        } catch (e) {
+            console.log(`   ✗ Error checking ${p.name}: ${e.message}`);
+        }
+    }
+
+    // Save final state
+    fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+    console.log("====================================");
+    console.log("Done.");
+}
+
+main();
