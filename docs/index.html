@@ -15,75 +15,103 @@
       --blue:#60a5fa; --radius:12px; --radius-sm:8px;
       --font:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
     }
-    body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; line-height:1.5; }
-    #loading { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; z-index:100; }
-    #loading.hidden { display:none; }
-    #setup-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; }
-    .setup-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:40px; width:100%; max-width:420px; }
-    .field { margin-bottom:16px; }
-    .field label { display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
-    .field input { width:100%; background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius-sm); color:var(--text); font-size:14px; height:42px; padding:0 14px; outline:none; }
-    #app { display:none; }
+    body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; line-height:1.5; overflow-x: hidden; }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes pulse { 0%,100%{opacity:1; transform: scale(1);} 50%{opacity:.5; transform: scale(1.1);} }
+
+    #loading { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:100; }
+    #loading.hidden { opacity: 0; pointer-events: none; transition: 0.5s; }
+
+    #app { display:none; animation: fadeIn 0.6s ease-out; }
+    
     .topbar { background:var(--bg2); border-bottom:1px solid var(--border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
-    .live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .live-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2s infinite; }
+
     .main { max-width:900px; margin:0 auto; padding:32px 20px; }
+    
     .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:28px; }
-    .stat { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; }
+    .stat { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; transition: 0.3s; }
+    .stat:hover { transform: translateY(-3px); border-color: var(--muted2); }
     .stat-val { font-size:30px; font-weight:600; line-height:1; margin-bottom:5px; }
     .stat-lbl { font-size:12px; color:var(--muted); }
+
     .add-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; margin-bottom:24px; }
-    .add-row { display:flex; gap:8px; flex-wrap:wrap; }
-    .add-row input { background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius-sm); color:var(--text); font-size:14px; height:40px; padding:0 14px; flex:1; outline:none; }
-    button { border:none; border-radius:var(--radius-sm); cursor:pointer; font-weight:500; height:40px; padding:0 18px; transition: opacity .15s; }
+    .add-row { display:flex; gap:10px; flex-wrap:wrap; }
+    .add-row input { background:var(--bg3); border:1px solid var(--border2); border-radius:var(--radius-sm); color:var(--text); font-size:14px; height:44px; padding:0 14px; flex:1; outline:none; transition: 0.2s; }
+    .add-row input:focus { border-color: var(--blue); background: var(--bg4); }
+
+    /* Button Interactions */
+    button { border:none; border-radius:var(--radius-sm); cursor:pointer; font-weight:600; height:44px; padding:0 20px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); active { transform: scale(0.95); } }
     .btn-primary { background:#e8e8e8; color:#111; }
+    .btn-primary:hover { background:#fff; box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
     .btn-secondary { background:var(--bg3); color:var(--text); border:1px solid var(--border2); }
+    .btn-secondary:hover { background:var(--bg4); border-color: var(--muted); }
     .btn-del { background:var(--red-bg); color:var(--red); border:1px solid var(--red-bd); }
-    .card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; margin-bottom:10px; }
-    .card-top { display:flex; align-items:flex-start; gap:14px; }
+    .btn-del:hover { background: var(--red); color: white; }
+
+    /* Product Cards */
+    .card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:18px 22px; margin-bottom:12px; animation: popIn 0.4s ease-out backwards; }
+    .card-top { display:flex; align-items:flex-start; gap:16px; }
     .card-info { flex:1; min-width:0; }
-    .card-name { font-size:15px; font-weight:500; }
-    .card-url { font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .badge { font-size:12px; padding:4px 11px; border-radius:999px; font-weight:500; }
-    .badge-in { background:var(--green-bg); color:var(--green); border:1px solid var(--green-bd); }
+    .card-name { font-size:16px; font-weight:600; color: #fff; }
+    .card-url { font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top: 4px; }
+    
+    .badge { font-size:11px; padding:5px 12px; border-radius:999px; font-weight:700; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.3s; }
+    .badge-in { background:var(--green-bg); color:var(--green); border:1px solid var(--green-bd); animation: pulse 2s infinite; }
     .badge-out { background:var(--red-bg); color:var(--red); border:1px solid var(--red-bd); }
-    .card-meta { margin-top:12px; padding-top:12px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-    #toast { position:fixed; bottom:24px; right:24px; background:var(--bg2); border:1px solid var(--border2); border-radius:10px; padding:12px 20px; transform:translateY(100px); transition: 0.3s; z-index:999; }
-    #toast.show { transform:translateY(0); }
-    .spinner { width:16px; height:16px; border:2px solid #777; border-top-color:transparent; border-radius:50%; animation:spin .6s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .card-meta { margin-top:16px; padding-top:14px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    
+    /* Loading Spinners for Buttons */
+    .loading-spinner { display: none; width: 14px; height: 14px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; }
+    .is-loading .loading-spinner { display: inline-block; }
+    .is-loading span { opacity: 0.7; }
+
+    #toast { position:fixed; bottom:24px; left:50%; transform:translate(-50%, 100px); background:var(--bg2); border:1px solid var(--border2); border-radius:12px; padding:14px 24px; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index:999; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-weight: 500; }
+    #toast.show { transform:translate(-50%, 0); }
   </style>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div></div>
+<div id="loading"><div style="width:30px;height:30px;border:3px solid var(--muted);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite;"></div></div>
 
 <div id="setup-screen" style="display:none;">
   <div class="setup-card">
-    <h1>Connect Repo</h1>
-    <div class="field"><label>Username</label><input type="text" id="s-owner" placeholder="rashadatjuned-alt"></div>
-    <div class="field"><label>Repo</label><input type="text" id="s-repo" placeholder="GitStocktracker"></div>
-    <div class="field"><label>Token</label><input type="password" id="s-token"></div>
-    <button class="btn-primary" style="width:100%" onclick="connect()">Connect</button>
+    <h1 style="margin-bottom:20px;">Connect Dashboard</h1>
+    <div class="field"><label>Username</label><input type="text" id="s-owner" value="rashadatjuned-alt"></div>
+    <div class="field"><label>Repo</label><input type="text" id="s-repo" value="GitStocktracker"></div>
+    <div class="field"><label>GitHub Token</label><input type="password" id="s-token"></div>
+    <button class="btn-primary" style="width:100%" onclick="connect()">Connect & Initialize</button>
   </div>
 </div>
 
 <div id="app">
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:10px;padding-left:20px;"><span class="live-dot"></span><b>Stock Tracker</b></div>
-    <button class="btn-secondary" style="margin-right:20px;" onclick="signOut()">Sign Out</button>
+    <div style="display:flex;align-items:center;gap:12px;padding-left:20px;"><span class="live-dot"></span><b style="font-size:18px;">Stock Tracker</b></div>
+    <div style="display:flex;gap:10px;margin-right:20px;">
+        <button class="btn-secondary" style="height:36px;padding:0 15px;" id="btn-refresh" onclick="loadProducts()">
+            <div class="loading-spinner"></div><span>Refresh</span>
+        </button>
+        <button class="btn-secondary" style="height:36px;padding:0 15px;" onclick="signOut()">Sign Out</button>
+    </div>
   </div>
   <div class="main">
     <div class="stats">
       <div class="stat"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Tracking</div></div>
-      <div class="stat"><div class="stat-val" style="color:var(--red)" id="s-out">0</div><div class="stat-lbl">Out</div></div>
-      <div class="stat"><div class="stat-val" style="color:var(--green)" id="s-in">0</div><div class="stat-lbl">In Stock</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--red)" id="s-out">0</div><div class="stat-lbl">Out of Stock</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--green)" id="s-in">0</div><div class="stat-lbl">Available Now</div></div>
     </div>
     <div class="add-card">
       <div class="add-row">
-        <input type="text" id="i-name" placeholder="Item Name">
-        <input type="text" id="i-url" placeholder="URL">
-        <button class="btn-primary" onclick="addProduct()">+ Track</button>
+        <input type="text" id="i-name" placeholder="Friendly Name (e.g. Blue Lawn Dress)">
+        <input type="text" id="i-url" placeholder="Paste link here...">
+        <button class="btn-primary" id="btn-add" onclick="addProduct()">
+            <div class="loading-spinner"></div><span>+ Track Link</span>
+        </button>
       </div>
     </div>
     <div id="items"></div>
@@ -106,11 +134,13 @@ async function ghFetch(path, opts = {}) {
     ...opts,
     headers: { 'Authorization': `Bearer ${CFG.token}`, 'Accept': 'application/vnd.github+json', ...(opts.headers || {}) }
   });
-  if (!r.ok) throw new Error('GH Error');
+  if (!r.ok) throw new Error('Unauthorized');
   return r.status === 204 ? null : r.json();
 }
 
 async function loadProducts() {
+  const btn = document.getElementById('btn-refresh');
+  btn.classList.add('is-loading');
   try {
     const file = await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/contents/data/products.json`);
     currentSha = file.sha;
@@ -124,7 +154,9 @@ async function loadProducts() {
 
     products = (raw.products || raw || []).map(p => ({ ...p, ...(state[p.id] || {}) }));
     render();
-  } catch(e) { toast('Load failed','red'); }
+    toast('Dashboard Synced');
+  } catch(e) { toast('Sync Failed','red'); }
+  finally { btn.classList.remove('is-loading'); }
 }
 
 function render() {
@@ -132,18 +164,20 @@ function render() {
   document.getElementById('s-in').textContent = products.filter(p => p.status === 'in').length;
   document.getElementById('s-out').textContent = products.filter(p => p.status !== 'in').length;
   
-  document.getElementById('items').innerHTML = products.map(p => `
-    <div class="card">
+  document.getElementById('items').innerHTML = products.map((p, index) => `
+    <div class="card" style="animation-delay: ${index * 0.05}s">
       <div class="card-top">
         <div class="card-info">
           <div class="card-name">${p.name}</div>
           <div class="card-url">${p.url}</div>
         </div>
-        <div class="badge ${p.status === 'in' ? 'badge-in' : 'badge-out'}">${p.status === 'in' ? 'IN STOCK' : 'OUT'}</div>
+        <div class="badge ${p.status === 'in' ? 'badge-in' : 'badge-out'}">${p.status === 'in' ? '● IN STOCK' : '● SOLD OUT'}</div>
       </div>
       <div class="card-meta">
-        <span style="font-size:12px;color:#777">Last: ${p.lastChecked ? new Date(p.lastChecked).toLocaleTimeString() : 'Pending'}</span>
-        <button class="btn-del" style="height:30px;padding:0 10px;font-size:12px" onclick="removeProduct('${p.id}')">Remove</button>
+        <span style="font-size:12px;color:#777">Detected: ${p.platform || 'General'} · Last: ${p.lastChecked ? new Date(p.lastChecked).toLocaleTimeString() : 'Pending'}</span>
+        <button class="btn-del" style="height:32px;padding:0 12px;font-size:12px" onclick="removeProduct('${p.id}', this)">
+            <div class="loading-spinner"></div><span>Remove</span>
+        </button>
       </div>
     </div>`).join('');
 }
@@ -151,33 +185,47 @@ function render() {
 async function addProduct() {
   const name = document.getElementById('i-name').value;
   const url = document.getElementById('i-url').value;
-  if(!url) return;
-  const newP = { id: Date.now().toString(), name: name || 'Item', url };
+  const btn = document.getElementById('btn-add');
+  if(!url) return toast('Paste a link first','red');
+  
+  btn.classList.add('is-loading');
+  const newP = { id: Date.now().toString(), name: name || 'Product', url };
   const newList = products.map(p => ({ id: p.id, name: p.name, url: p.url }));
+
   try {
     await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/contents/data/products.json`, {
       method: 'PUT',
       body: JSON.stringify({ message: 'add item', content: btoa(JSON.stringify({products: [...newList, newP]}, null, 2)), sha: currentSha })
     });
-    toast('Added!');
-    setTimeout(loadProducts, 1500);
-  } catch(e) { toast('Failed to add','red'); }
+    toast('Link added to tracking!');
+    document.getElementById('i-url').value = '';
+    document.getElementById('i-name').value = '';
+    setTimeout(loadProducts, 1000);
+  } catch(e) { toast('Write permission denied','red'); }
+  finally { btn.classList.remove('is-loading'); }
 }
 
-async function removeProduct(id) {
+async function removeProduct(id, btn) {
+  if(!confirm('Stop tracking?')) return;
+  btn.classList.add('is-loading');
   const newList = products.filter(p => p.id !== id).map(p => ({ id: p.id, name: p.name, url: p.url }));
   try {
     await ghFetch(`/repos/${CFG.owner}/${CFG.repo}/contents/data/products.json`, {
       method: 'PUT',
       body: JSON.stringify({ message: 'remove item', content: btoa(JSON.stringify({products: newList}, null, 2)), sha: currentSha })
     });
-    toast('Removed');
-    setTimeout(loadProducts, 1500);
-  } catch(e) { toast('Failed to remove','red'); }
+    toast('Deleted');
+    setTimeout(loadProducts, 1000);
+  } catch(e) { toast('Error deleting','red'); }
+  finally { btn.classList.remove('is-loading'); }
 }
 
 function connect() {
-  CFG = { owner: document.getElementById('s-owner').value, repo: document.getElementById('s-repo').value, token: document.getElementById('s-token').value };
+  CFG = { 
+    owner: document.getElementById('s-owner').value, 
+    repo: document.getElementById('s-repo').value, 
+    token: document.getElementById('s-token').value 
+  };
   saveCfg();
   location.reload();
 }
@@ -192,7 +240,7 @@ function toast(m, c='') {
 }
 
 loadCfg();
-document.getElementById('loading').classList.add('hidden');
+setTimeout(() => document.getElementById('loading').classList.add('hidden'), 500);
 if(CFG.token) { document.getElementById('app').style.display='block'; loadProducts(); }
 else { document.getElementById('setup-screen').style.display='flex'; }
 </script>
