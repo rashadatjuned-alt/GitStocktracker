@@ -4,8 +4,8 @@ const path = require('path');
 const PRODUCTS_FILE = path.join(__dirname, '../data/products.json');
 
 /**
- * Combined Logic: Reads products and handles various JSON formats
- * to prevent "products.map is not a function" errors.
+ * Reads products and handles various JSON formats to prevent 
+ * "products.map is not a function" errors.
  */
 function getAllProducts() {
   try {
@@ -16,8 +16,7 @@ function getAllProducts() {
     const rawData = fs.readFileSync(PRODUCTS_FILE, 'utf8');
     const products = JSON.parse(rawData);
     
-    // This handles both the [{}, {}] and {"products": [{}, {}]} formats
-    // which ensures compatibility between Dashboard and Telegram updates.
+    // Safety check: Handles both [{}, {}] and {"products": [{}, {}]} formats
     const productsArray = products.products || (Array.isArray(products) ? products : []);
     
     return productsArray;
@@ -28,7 +27,7 @@ function getAllProducts() {
 }
 
 /**
- * Optional: Helper to save products back in the standard format
+ * Saves products back in a consistent object format
  */
 function saveProducts(productsArray) {
   try {
