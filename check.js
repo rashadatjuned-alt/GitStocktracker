@@ -1,8 +1,13 @@
-// check.js — run by GitHub Actions every hour
 require('dotenv').config();
 const { checkStock } = require('./src/checker');
 const { sendStockAlert, sendInfo } = require('./src/notifier');
 const { getAllProducts, updateProduct } = require('./src/db');
+
+// Helper function to create randomized delays (Jitter)
+const sleep = (minMs, maxMs) => {
+  const ms = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
 
 async function main() {
   const products = getAllProducts();
@@ -26,19 +31,31 @@ async function main() {
 
       const result = await checkStock(product);
       const prevStatus = product.status;
-      const newStatus  = result.status;
+      const newStatus = result.status;
+
+      let errorCount = product.errorCount || 0;
+      if (newStatus === 'error') {
+        errorCount += 1;
+        if (errorCount === 3) {
+          await sendInfo(`⚠️ Tracker failing for ${product.name}. Might be blocked or site changed layout.`);
+        }
+      } else {
+        errorCount = 0; 
+      }
 
       updateProduct(product.id, {
-        status:      newStatus,
-        platform:    result.platform || product.platform,
+        status: newStatus,
+        platform: result.platform || product.platform,
         lastChecked: new Date().toISOString(),
-        lastStatus:  prevStatus,
-        lastDetail:  result.detail
+        lastStatus: prevStatus,
+        lastDetail: result.detail,
+        errorCount: errorCount 
       });
 
-      const icon = newStatus === 'in' ? '✅' : newStatus === 'out' ? '❌' : '❓';
+      const icon = newStatus === 'in' ? '✅' : newStatus === 'out' ? '❌' : (newStatus === 'error' ? '⚠️' : '❓');
       console.log(`  Status: ${icon} ${newStatus} — ${result.detail}`);
 
+      // Only alert if it was explicitly 'out' before
       if (prevStatus === 'out' && newStatus === 'in') {
         console.log(`  🔔 BACK IN STOCK! Sending alert...`);
         const sent = await sendStockAlert(product, result);
@@ -49,12 +66,19 @@ async function main() {
       }
 
       console.log();
+      
+      // Jitter delay: Wait 2.5 to 5 seconds between checks to avoid IP bans
+      await sleep(2500, 5000); 
+
     } catch (err) {
       console.error(`  ✗ Error: ${err.message}\n`);
+      
+      const currentErrors = (product.errorCount || 0) + 1;
       updateProduct(product.id, {
         status: 'error',
         lastChecked: new Date().toISOString(),
-        lastDetail: err.message
+        lastDetail: err.message,
+        errorCount: currentErrors
       });
     }
   }
