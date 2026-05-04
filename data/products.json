@@ -1,18 +1,24 @@
-[
-  {
-    "id": "1777547785501",
-    "url": "https://global.iznikfashions.com/products/ue-484-embroidered-lawn",
-    "name": "Iznik - UE-484"
-  },
-  {
-    "id": "1777669757412",
-    "url": "https://zellbury.com/products/shirt-dupatta-wus26e20740",
-    "name": "Zellbury - WUS26E20740"
-  },
-  {
-    "id": "1777879516276",
-    "url": "https://zellbury.com/products/kurta-dupatta-wps2622397",
-    "name": "Zellbury",
-    "status": "out"
-  }
-]
+{
+  "products": [
+    {
+      "id": "1777547785501",
+      "name": "Iznik - UE-484",
+      "url": "https://global.iznikfashions.com/products/ue-484-embroidered-lawn"
+    },
+    {
+      "id": "1777669757412",
+      "name": "Zellbury - WUS26E20740",
+      "url": "https://zellbury.com/products/shirt-dupatta-wus26e20740"
+    },
+    {
+      "id": "1777879516276",
+      "name": "Zellbury",
+      "url": "https://zellbury.com/products/kurta-dupatta-wps2622397"
+    },
+    {
+      "id": "1777880458764",
+      "name": "Product",
+      "url": "https://zellbury.com/products/shirt-dupatta-wus26x20401"
+    }
+  ]
+}
