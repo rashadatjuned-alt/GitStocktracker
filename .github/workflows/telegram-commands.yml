@@ -1,0 +1,34 @@
+name: Telegram Command Handler
+on:
+  repository_dispatch:
+    types: [telegram_add]
+
+jobs:
+  update-list:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Update products.json
+        run: |
+          URL="${{ github.event.client_payload.url }}"
+          ID=$(date +%s)
+          # Appends to the products list and saves
+          jq ".products += [{id: \"$ID\", name: \"Added-via-TG\", url: \"$URL\"}]" data/products.json > temp.json && mv temp.json data/products.json
+          
+      - name: Commit changes
+        run: |
+          git config user.name "Telegram Bot"
+          git config user.email "bot@telegram"
+          git add data/products.json
+          git commit -m "chore: add link via Telegram [skip ci]"
+          git push
+          
+      - name: Trigger Stock Check
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github+json" \
+          https://api.github.com/repos/${{ github.repository }}/actions/workflows/check-stock.yml/dispatches \
+          -d '{"ref":"main"}'
