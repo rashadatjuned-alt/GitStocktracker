@@ -10,7 +10,7 @@
     "name": "Added-via-TG",
     "status": "in",
     "url": "https://zellbury.com/products/shirt-dupatta-wus26x20401",
-    "lastChecked": "2026-05-04T13:06:04.782Z"
+    "lastChecked": "2026-05-04T13:12:09.303Z"
   },
   "1777547370469": {
     "status": "in",
@@ -26,14 +26,14 @@
     "name": "Iznik - UE-484",
     "status": "out",
     "url": "https://global.iznikfashions.com/products/ue-484-embroidered-lawn",
-    "lastChecked": "2026-05-04T13:06:04.120Z"
+    "lastChecked": "2026-05-04T13:12:08.667Z"
   },
   "1777669757412": {
     "id": "1777669757412",
     "name": "Zellbury - WUS26E20740",
     "status": "out",
     "url": "https://zellbury.com/products/shirt-dupatta-wus26e20740",
-    "lastChecked": "2026-05-04T13:06:04.399Z"
+    "lastChecked": "2026-05-04T13:12:08.995Z"
   },
   "1777789357073": {
     "status": "in",
@@ -56,7 +56,7 @@
     "name": "Zellbury",
     "status": "out",
     "url": "https://zellbury.com/products/kurta-dupatta-wps2622397",
-    "lastChecked": "2026-05-04T13:06:04.557Z"
+    "lastChecked": "2026-05-04T13:12:09.120Z"
   },
   "1777880458764": {
     "id": "1777880458764",
@@ -64,5 +64,12 @@
     "status": "out",
     "url": "https://zellbury.com/products/shirt-dupatta-wus26x20401",
     "lastChecked": "2026-05-04T11:00:22.793Z"
+  },
+  "1777900297849": {
+    "id": "1777900297849",
+    "name": "Limelight",
+    "status": "in",
+    "url": "https://www.limelight.pk/products/u4587su-3pc-597",
+    "lastChecked": "2026-05-04T13:12:10.230Z"
   }
 }
