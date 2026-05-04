@@ -12,9 +12,21 @@
     "platform": "shopify"
   },
   {
+    "id": "1777669757412",
+    "name": "Zellbury - WUS26E20740",
+    "url": "https://zellbury.com/products/shirt-dupatta-wus26e20740",
+    "platform": "shopify"
+  },
+  {
     "id": "1777789357073",
     "name": "Sapphire - U2DDDS26V314",
     "url": "https://pk.sapphireonline.pk/collections/unstitched/products/U2DDDS26V314.html",
+    "platform": "sapphire"
+  },
+  {
+    "id": "1777790740381",
+    "name": "Sapphire - U3PESTS6V323",
+    "url": "https://pk.sapphireonline.pk/collections/new-in/products/U3PESTS6V323.html",
     "platform": "sapphire"
   }
 ]
