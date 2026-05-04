@@ -34,6 +34,15 @@ jobs:
         run: |
           git config user.name  "Stock Tracker Bot"
           git config user.email "bot@stock-tracker"
+          
+          # Stage the changes
           git add data/state.json
+          
+          # Fix: Pull the latest changes from your dashboard before pushing
+          git pull --rebase origin main
+          
+          # Only commit if there are actually changes to the state
           git diff --staged --quiet || git commit -m "chore: update stock state [skip ci]"
+          
+          # Push everything back to the repository
           git push
