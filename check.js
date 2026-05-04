@@ -47,29 +47,29 @@ async function main() {
     for (const p of products) {
         console.log(`→ ${p.name}`);
         let status = 'out';
+        let checkMethod = 'None';
 
         try {
             let isShopify = false;
             
-            // 1. SMART CHECK: Try Shopify's hidden JSON database first
+            // 1. SMART CHECK: Shopify .js endpoint (Highly accurate)
             if (p.url.includes('/products/')) {
-                const jsonUrl = p.url.split('?')[0] + '.json';
+                const jsUrl = p.url.split('?')[0] + '.js'; 
                 try {
-                    const jRes = await axios.get(jsonUrl, { timeout: 8000 });
-                    if (jRes.data && jRes.data.product && jRes.data.product.variants) {
+                    const jRes = await axios.get(jsUrl, { timeout: 8000 });
+                    if (jRes.data && jRes.data.available !== undefined) {
                         isShopify = true;
-                        // Check if ANY variant (size/color) is available
-                        const isAvail = jRes.data.product.variants.some(v => v.available === true || v.inventory_quantity > 0);
-                        status = isAvail ? 'in' : 'out';
-                        console.log(`   [Shopify API] Status: ${status === 'in' ? '✅' : '❌'}`);
+                        status = jRes.data.available ? 'in' : 'out';
+                        checkMethod = 'Shopify API';
                     }
                 } catch (e) { 
-                    // JSON failed, move to HTML fallback 
+                    // Silent fail, will fallback to HTML
                 }
             }
 
-            // 2. FALLBACK CHECK: Look for developer Schema tags in the HTML
-            if (!isShopify) {
+            // 2. FALLBACK CHECK: Scan the HTML if Shopify API fails or item shows out
+            // (Sometimes APIs are cached, but the page HTML is fresh)
+            if (!isShopify || status === 'out') {
                 const response = await axios.get(p.url, { 
                     timeout: 10000,
                     headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64 AppleWebKit/537.36)" }
@@ -77,18 +77,32 @@ async function main() {
                 const html = response.data;
                 const htmlLower = html.toLowerCase();
                 
-                // Look for strict, hidden inventory tags to avoid "Related Products" false positives
-                if (html.includes('"availability":"http://schema.org/InStock"') || 
-                    html.includes('content="instock"') || 
-                    html.includes('content="InStock"')) {
+                // A. Check for standard Meta Tags (Facebook/Google uses these to verify stock)
+                if (htmlLower.includes('property="og:availability" content="instock"')) {
                     status = 'in';
+                    checkMethod = 'Meta Tags';
                 } 
-                // Absolute last resort: Button text
-                else if (htmlLower.includes('add to cart') && !htmlLower.includes('sold out')) {
+                // B. Check for Schema.org developer tags (Regex allows spaces)
+                else if (/"availability"\s*:\s*"https?:\/\/schema\.org\/InStock"/i.test(html)) {
                     status = 'in';
+                    checkMethod = 'Schema Tags';
                 }
-                console.log(`   [HTML Scan] Status: ${status === 'in' ? '✅' : '❌'}`);
+                // C. Check raw Shopify Javascript objects loaded on the page
+                else if (htmlLower.includes('"available":true') || htmlLower.includes('"available": true')) {
+                    status = 'in';
+                    checkMethod = 'Page Script';
+                }
+                // D. Last resort: The actual button (Without the 'Sold Out' trap!)
+                else if (htmlLower.includes('add to cart') || htmlLower.includes('add to bag')) {
+                    // We only check for disabled buttons if we are relying purely on text
+                    if (!htmlLower.includes('disabled="disabled"')) {
+                        status = 'in';
+                        checkMethod = 'Button Text';
+                    }
+                }
             }
+
+            console.log(`   [${checkMethod}] Status: ${status === 'in' ? '✅' : '❌'}`);
 
             // Alert if status changed from OUT to IN
             if (status === 'in' && (!state[p.id] || state[p.id].status !== 'in')) {
