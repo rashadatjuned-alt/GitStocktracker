@@ -1,8 +1,6 @@
-// Telegram notifier — 100% free, no credit card, no limits
-
 const TELEGRAM_API = 'https://api.telegram.org';
 
-async function sendTelegram(text) {
+async function sendTelegram(text, retries = 3) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId   = process.env.TELEGRAM_CHAT_ID;
 
@@ -12,26 +10,51 @@ async function sendTelegram(text) {
   }
 
   const url = `${TELEGRAM_API}/bot${botToken}/sendMessage`;
+  const payload = {
+    chat_id: chatId,
+    text,
+    parse_mode: 'HTML',
+    disable_web_page_preview: false
+  };
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      parse_mode: 'HTML',
-      disable_web_page_preview: false
-    })
-  });
+  for (let i = 0; i < retries; i++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-  const data = await res.json();
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      const data = await res.json();
 
-  if (!data.ok) {
-    console.error(`[Notifier] Telegram error: ${data.description}`);
-    return false;
+      if (data.ok) return true;
+
+      // Handle Telegram Rate Limiting
+      if (res.status === 429 && data.parameters && data.parameters.retry_after) {
+        const waitTimeMs = (data.parameters.retry_after * 1000) + 500; 
+        console.warn(`[Notifier] Telegram rate limit hit. Waiting ${waitTimeMs/1000}s before retrying...`);
+        await new Promise(resolve => setTimeout(resolve, waitTimeMs));
+        continue; 
+      }
+
+      console.error(`[Notifier] Telegram API error: ${data.description}`);
+      return false;
+
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (i === retries - 1) {
+        console.error(`[Notifier] Failed to send after ${retries} attempts: ${err.message}`);
+        return false;
+      }
+      console.warn(`[Notifier] Network error: ${err.message}. Retrying...`);
+      await new Promise(resolve => setTimeout(resolve, 2000 * (i + 1)));
+    }
   }
-
-  return true;
 }
 
 function buildMessage(product, checkResult) {
