@@ -48,28 +48,31 @@ async function main() {
         console.log(`→ ${p.name}`);
         let status = 'out';
         let checkMethod = 'None';
+        let apiSuccess = false; // Flag to prevent double-guessing
 
         try {
-            let isShopify = false;
-            
             // 1. SMART CHECK: Shopify .js endpoint (Highly accurate)
             if (p.url.includes('/products/')) {
-                const jsUrl = p.url.split('?')[0] + '.js'; 
+                // Ensure we get the clean product URL ending in .js
+                const cleanUrl = p.url.split('?')[0];
+                const jsUrl = cleanUrl.endsWith('.js') ? cleanUrl : cleanUrl + '.js';
+                
                 try {
                     const jRes = await axios.get(jsUrl, { timeout: 8000 });
-                    if (jRes.data && jRes.data.available !== undefined) {
-                        isShopify = true;
+                    // Verify this is a valid Shopify product response
+                    if (jRes.data && jRes.data.id && typeof jRes.data.available !== 'undefined') {
                         status = jRes.data.available ? 'in' : 'out';
                         checkMethod = 'Shopify API';
+                        apiSuccess = true; // We got a definitive answer!
                     }
                 } catch (e) { 
                     // Silent fail, will fallback to HTML
                 }
             }
 
-            // 2. FALLBACK CHECK: Scan the HTML if Shopify API fails or item shows out
-            // (Sometimes APIs are cached, but the page HTML is fresh)
-            if (!isShopify || status === 'out') {
+            // 2. FALLBACK CHECK: ONLY run this if the API failed entirely. 
+            // Never run this if the API already told us it is 'out' of stock.
+            if (!apiSuccess) {
                 const response = await axios.get(p.url, { 
                     timeout: 10000,
                     headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64 AppleWebKit/537.36)" }
@@ -77,28 +80,14 @@ async function main() {
                 const html = response.data;
                 const htmlLower = html.toLowerCase();
                 
-                // A. Check for standard Meta Tags (Facebook/Google uses these to verify stock)
+                // STRICT HTML Checks (No generic "add to cart" text searches)
                 if (htmlLower.includes('property="og:availability" content="instock"')) {
                     status = 'in';
                     checkMethod = 'Meta Tags';
                 } 
-                // B. Check for Schema.org developer tags (Regex allows spaces)
                 else if (/"availability"\s*:\s*"https?:\/\/schema\.org\/InStock"/i.test(html)) {
                     status = 'in';
                     checkMethod = 'Schema Tags';
-                }
-                // C. Check raw Shopify Javascript objects loaded on the page
-                else if (htmlLower.includes('"available":true') || htmlLower.includes('"available": true')) {
-                    status = 'in';
-                    checkMethod = 'Page Script';
-                }
-                // D. Last resort: The actual button (Without the 'Sold Out' trap!)
-                else if (htmlLower.includes('add to cart') || htmlLower.includes('add to bag')) {
-                    // We only check for disabled buttons if we are relying purely on text
-                    if (!htmlLower.includes('disabled="disabled"')) {
-                        status = 'in';
-                        checkMethod = 'Button Text';
-                    }
                 }
             }
 
@@ -114,7 +103,7 @@ async function main() {
 
         } catch (e) {
             console.log(`   ✗ Error checking ${p.name}: ${e.message}`);
-            // If the website blocks us, keep the old status so it doesn't trigger fake alerts
+            // If the website blocks us, keep the old status
             if (state[p.id]) {
                 updateProductState(p.id, state[p.id].status, p.name, p.url);
             }
