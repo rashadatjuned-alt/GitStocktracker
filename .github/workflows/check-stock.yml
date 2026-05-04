@@ -1,48 +1,35 @@
-name: Stock Checker
+name: check-stock
 
 on:
   schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
+    - cron: '0 * * * *' # Runs every hour
+  workflow_dispatch:      # Allows manual trigger from Dashboard
 
 jobs:
   check-stock:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 24
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run stock check
+      - name: Run Tracker
+        run: node check.js
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: node check.js
 
-      - name: Commit updated state data
+      - name: Commit Results
         run: |
-          git config user.name  "Stock Tracker Bot"
-          git config user.email "bot@stock-tracker"
-          
-          # Stage the changes
+          git config user.name "StockBot"
+          git config user.email "bot@stock"
           git add data/state.json
-          
-          # Fix: Pull the latest changes from your dashboard before pushing
-          git pull --rebase origin main
-          
-          # Only commit if there are actually changes to the state
-          git diff --staged --quiet || git commit -m "chore: update stock state [skip ci]"
-          
-          # Push everything back to the repository
-          git push
+          git diff --quiet && git diff --staged --quiet || (git commit -m "update stock state" && git push)
