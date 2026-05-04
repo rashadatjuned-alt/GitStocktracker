@@ -1,32 +1,22 @@
 [
   {
-    "id": "1777547370469",
-    "name": "Zellbury - WUS26X20521",
-    "url": "https://zellbury.com/products/shirt-dupatta-wus26x20521?_pos=1&_sid=5fb2c7db4&_ss=r",
-    "platform": "shopify"
-  },
-  {
     "id": "1777547785501",
-    "name": "Iznik - UE-484",
     "url": "https://global.iznikfashions.com/products/ue-484-embroidered-lawn",
-    "platform": "shopify"
+    "name": "Iznik - UE-484"
   },
   {
     "id": "1777669757412",
-    "name": "Zellbury - WUS26E20740",
     "url": "https://zellbury.com/products/shirt-dupatta-wus26e20740",
-    "platform": "shopify"
+    "name": "Zellbury - WUS26E20740"
   },
   {
     "id": "1777789357073",
-    "name": "Sapphire - U2DDDS26V314",
     "url": "https://pk.sapphireonline.pk/collections/unstitched/products/U2DDDS26V314.html",
-    "platform": "sapphire"
+    "name": "Sapphire - U2DDDS26V314"
   },
   {
     "id": "1777790740381",
-    "name": "Sapphire - U3PESTS6V323",
     "url": "https://pk.sapphireonline.pk/collections/new-in/products/U3PESTS6V323.html",
-    "platform": "sapphire"
+    "name": "Sapphire - U3PESTS6V323"
   }
 ]
