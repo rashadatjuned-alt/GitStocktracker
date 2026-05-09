@@ -1,66 +1,32 @@
-# Stock Tracker
+# ⬛ TeamFlow — Next.js + Supabase
 
-100% free. No paid services. No server.
+## Deploy to Vercel (5 minutes)
 
-| What | How |
-|---|---|
-| **Dashboard UI** | GitHub Pages (free static hosting) |
-| **Hourly checks** | GitHub Actions (free 2000 min/month) |
-| **Product storage** | `data/products.json` in this repo |
-| **Alerts** | Telegram (free) |
+### 1. Push to GitHub
+Upload all files to a new GitHub repo.
 
----
+### 2. Deploy on Vercel
+1. Go to **vercel.com** → sign up with GitHub
+2. Click **Add New Project** → import your repo
+3. Framework: **Next.js** (auto-detected)
+4. Add Environment Variables:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL     = https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY = your-anon-key
+   ```
+5. Click **Deploy** → done in ~60 seconds
 
-## Setup
+### 3. Supabase tables needed
+```sql
+create table "Users" (id uuid primary key, email text, full_name text, role text default 'Team Member');
+create table "Projects" (id uuid primary key default gen_random_uuid(), name text, description text, color_code text default '#378ADD', created_at timestamptz default now());
+create table "Tasks" (id uuid primary key default gen_random_uuid(), project_name text, topic text, description text, owner text, type text default 'One-time', start_date date, end_date date, status text default 'Not Started', tags text[], created_at timestamptz default now());
+create table "Subtasks" (id uuid primary key default gen_random_uuid(), parent_task_id uuid references "Tasks"(id) on delete cascade, topic text, start_date date, end_date date, status text default 'Not Started');
+create table "Notifications" (id uuid primary key default gen_random_uuid(), user_id uuid references "Users"(id) on delete cascade, message text, is_read boolean default false, created_at timestamptz default now());
 
-### 1. Upload these files to a new GitHub repo
-
-### 2. Enable GitHub Pages
-- Repo → **Settings** → **Pages**
-- Source: **Deploy from a branch**
-- Branch: `main` / folder: `/docs`
-- Save → your dashboard is live at `https://YOUR_USERNAME.github.io/YOUR_REPO`
-
-### 3. Add Telegram secrets
-- Repo → **Settings** → **Secrets and variables** → **Actions**
-- Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`
-
-### 4. Enable GitHub Actions
-- Click the **Actions** tab → enable workflows
-
-### 5. Create a GitHub Personal Access Token
-- Go to: https://github.com/settings/tokens/new?scopes=repo&description=Stock+Tracker
-- Select **repo** scope → Generate
-- Copy the token — you'll paste it into the dashboard login
-
-### 6. Open your dashboard
-- Go to `https://YOUR_USERNAME.github.io/YOUR_REPO`
-- Enter your GitHub username, repo name, and token
-- Start adding product URLs!
-
----
-
-## How it works
-
-1. You add a product URL via the dashboard
-2. The dashboard writes it to `data/products.json` in this repo via the GitHub API
-3. Every hour, GitHub Actions runs `check.js`
-4. It reads `data/products.json`, visits each URL, checks stock
-5. If a product flips from out → in stock, it sends a Telegram message
-6. It saves the updated status back to `data/products.json`
-7. Refresh the dashboard to see the latest status
-
----
-
-## Files
-
-```
-.github/workflows/check-stock.yml  ← runs hourly automatically
-docs/index.html                    ← dashboard (GitHub Pages)
-src/checker.js                     ← stock detection
-src/notifier.js                    ← Telegram alerts
-src/db.js                          ← reads/writes products.json
-data/products.json                 ← your product list
-check.js                           ← main script
-package.json
+alter table "Users" disable row level security;
+alter table "Projects" disable row level security;
+alter table "Tasks" disable row level security;
+alter table "Subtasks" disable row level security;
+alter table "Notifications" disable row level security;
 ```
