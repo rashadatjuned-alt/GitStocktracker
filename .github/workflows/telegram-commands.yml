@@ -10,25 +10,44 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Update products.json
         run: |
           URL="${{ github.event.client_payload.url }}"
-          ID=$(date +%s)
-          # Appends to the products list and saves
-          jq ".products += [{id: \"$ID\", name: \"Added-via-TG\", url: \"$URL\"}]" data/products.json > temp.json && mv temp.json data/products.json
-          
+          NAME="${{ github.event.client_payload.name }}"
+          ID=$(date +%s%3N)
+          ADDED_AT=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+
+          # Extract name from URL if not provided
+          if [ -z "$NAME" ]; then
+            NAME=$(echo "$URL" | sed 's/.*\///' | sed 's/\.html$//' | sed 's/[-_]/ /g')
+          fi
+
+          # Add product with all required fields
+          jq ".products += [{
+            id: \"$ID\",
+            url: \"$URL\",
+            name: \"$NAME\",
+            status: \"out\",
+            platform: null,
+            lastChecked: null,
+            lastStatus: null,
+            lastDetail: null,
+            addedAt: \"$ADDED_AT\",
+            alertsSent: 0
+          }]" data/products.json > temp.json && mv temp.json data/products.json
+
       - name: Commit changes
         run: |
           git config user.name "Telegram Bot"
           git config user.email "bot@telegram"
           git add data/products.json
-          git commit -m "chore: add link via Telegram [skip ci]"
-          git push
-          
+          git diff --staged --quiet || (git commit -m "chore: add link via Telegram [skip ci]" && git pull --rebase && git push)
+
       - name: Trigger Stock Check
         run: |
-          curl -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github+json" \
           https://api.github.com/repos/${{ github.repository }}/actions/workflows/check-stock.yml/dispatches \
           -d '{"ref":"main"}'
