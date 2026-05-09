@@ -14,6 +14,7 @@ export interface Project {
   name: string
   description?: string
   color_code: string
+  members: string[]   // array of user ids assigned to this project
   created_at?: string
 }
 
@@ -35,6 +36,7 @@ export interface Subtask {
   id: string
   parent_task_id: string
   topic: string
+  owner?: string       // assigned resource
   start_date: string
   end_date: string
   status: Status
@@ -45,14 +47,5 @@ export interface Notification {
   user_id: string
   message: string
   is_read: boolean
-  created_at: string
-}
-
-export interface Comment {
-  id: string
-  task_id: string
-  user_id: string
-  user_name: string
-  content: string
   created_at: string
 }

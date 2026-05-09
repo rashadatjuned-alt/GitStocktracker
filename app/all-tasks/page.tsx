@@ -30,7 +30,7 @@ export default function AllTasks() {
       ])
       setTasks(t.data||[])
       setSubtasks(s.data||[])
-      setProjects([...new Set((t.data||[]).map((x:any)=>x.project_name).filter(Boolean))])
+      setProjects([...new Set((t.data||[]).map((x:any)=>x.project_name).filter(Boolean))] as string[])
     }
     load()
   },[])
