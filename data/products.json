@@ -6,7 +6,7 @@
       "url": "https://global.iznikfashions.com/products/ue-484-embroidered-lawn",
       "status": "unknown",
       "platform": "shopify",
-      "lastChecked": "2026-05-17T08:00:21.657Z",
+      "lastChecked": "2026-05-17T08:57:28.256Z",
       "lastDetail": "Could not determine stock from page",
       "lastStatus": "unknown"
     },
@@ -14,10 +14,10 @@
       "id": "1778363527",
       "name": "Added-via-TG",
       "url": "https://zellbury.com/products/shirt-dupatta-wus26e20740",
-      "status": "out",
+      "status": "error",
       "platform": "shopify",
-      "lastChecked": "2026-05-17T08:00:22.910Z",
-      "lastDetail": "Out of stock (script data)",
+      "lastChecked": "2026-05-17T08:57:28.846Z",
+      "lastDetail": "HTTP 503",
       "lastStatus": "out"
     },
     {
@@ -26,7 +26,7 @@
       "url": "https://zellbury.com/products/kurta-dupatta-wps2622397",
       "status": "out",
       "platform": "shopify",
-      "lastChecked": "2026-05-17T08:00:23.298Z",
+      "lastChecked": "2026-05-17T08:57:30.340Z",
       "lastDetail": "Out of stock (script data)",
       "lastStatus": "out"
     }
