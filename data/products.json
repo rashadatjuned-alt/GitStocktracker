@@ -1,3 +1,16 @@
 {
-  "products": []
+  "products": [
+    {
+      "id": "1793181050535",
+      "url": "https://edenrobe.com/products/unstitched-deep-pink-printed-zari-lawn-3-piece-ewu5m6-013-3p",
+      "name": "unstitched deep pink printed zari lawn 3 piece ewu5m6 013 3p",
+      "status": "out",
+      "platform": null,
+      "lastChecked": null,
+      "lastStatus": null,
+      "lastDetail": null,
+      "addedAt": "2026-10-28T09:50:50.535Z",
+      "alertsSent": 0
+    }
+  ]
 }
