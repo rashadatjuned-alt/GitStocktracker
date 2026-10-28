@@ -1,0 +1,39 @@
+name: Telegram Bot
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+# One run at a time so commands are never processed twice
+concurrency:
+  group: telegram-bot
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Process Telegram commands
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node telegram-bot.js
+
+      - name: Commit changes
+        run: |
+          git config user.name  "Telegram Bot"
+          git config user.email "bot@telegram"
+          git add data/products.json data/telegram-offset.json
+          git diff --staged --quiet || (git commit -m "chore: telegram bot update [skip ci]" && git pull --rebase && git push)
