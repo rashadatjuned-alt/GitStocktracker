@@ -1,15 +1,3 @@
 {
-  "products": [
-    {
-      "id": "1778363556",
-      "name": "Added-via-TG",
-      "url": "https://zellbury.com/products/kurta-dupatta-wps2622397",
-      "status": "out",
-      "platform": "shopify",
-      "lastChecked": "2026-10-28T09:00:39.608Z",
-      "lastDetail": "Out of stock (script data)",
-      "lastStatus": "out",
-      "alertsSent": 18
-    }
-  ]
+  "products": []
 }
