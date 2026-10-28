@@ -1,0 +1,25 @@
+name: Fallback Checker
+
+on:
+  workflow_dispatch:
+    inputs:
+      products:
+        description: 'JSON list of products to check'
+        required: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Check products and report to the Worker
+        env:
+          PRODUCTS: ${{ inputs.products }}
+          WORKER_URL: ${{ secrets.WORKER_URL }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+        run: node fallback.js
